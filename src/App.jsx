@@ -11,8 +11,8 @@ import QuizView from './components/QuizView';
 // Relative URL works for both Vercel deployment and local dev proxy
 const BACKEND_URL = '';
 
-// Pre-wired Gemini API key (no user config needed)
-const GEMINI_API_KEY = 'AIzaSyAQ.Ab8RN6L6pHPJ3jxVrqV84_Go-v3_WkbC6c-7EPl1wbDWvPNSVg';
+// Empty string forces the backend to use the GEMINI_API_KEY environment variable from Vercel
+const GEMINI_API_KEY = '';
 const GEMINI_MODEL   = 'gemini-2.0-flash';
 
 const LOADING_STAGES = [
