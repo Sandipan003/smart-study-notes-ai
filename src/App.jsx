@@ -303,7 +303,7 @@ export default function App() {
                 style={{ fontSize: '0.82rem', padding: '0.5rem 1rem', gap: '0.4rem' }}
               >
                 <History size={15} />
-                <span>Saved Guides</span>
+                <span className="nav-btn-text">Saved Guides</span>
               </button>
               {studyData && (
                 <button className="btn btn-secondary" onClick={handleReset} style={{ fontSize: '0.82rem', padding: '0.5rem 1rem' }}>
@@ -316,7 +316,7 @@ export default function App() {
                 style={{ fontSize: '0.82rem', padding: '0.5rem 1rem', gap: '0.4rem', color: '#ff4d4d' }}
               >
                 <LogOut size={15} />
-                <span>Sign Out</span>
+                <span className="nav-btn-text">Sign Out</span>
               </button>
             </>
           ) : (
