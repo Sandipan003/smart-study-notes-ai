@@ -55,15 +55,18 @@ function CoreOrb() {
     <Float speed={2} rotationIntensity={1} floatIntensity={2}>
       <Sphere ref={sphereRef} args={[1, 64, 64]} scale={1.2}>
         <MeshDistortMaterial 
-          color="#121820" 
-          emissive="#0a0a0a"
+          color="#9FAEFF" 
+          emissive="#62F6C5"
+          emissiveIntensity={0.2}
           envMapIntensity={1} 
           clearcoat={1} 
           clearcoatRoughness={0.1} 
-          metalness={0.8} 
-          roughness={0.2} 
+          metalness={0.9} 
+          roughness={0.1} 
           distort={0.4} 
           speed={2} 
+          transparent
+          opacity={0.8}
         />
       </Sphere>
       

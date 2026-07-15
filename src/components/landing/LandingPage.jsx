@@ -71,10 +71,10 @@ export default function LandingPage({ onSignInClick }) {
           <motion.div variants={fadeInUp} className="mt-12 flex items-center gap-6 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
             <span className="text-sm font-semibold tracking-wider uppercase text-text-muted">Supported formats</span>
             <div className="flex gap-4 font-mono text-sm">
-              <span className="px-2 py-1 rounded bg-background-soft border border-border">.PDF</span>
-              <span className="px-2 py-1 rounded bg-background-soft border border-border">.DOCX</span>
-              <span className="px-2 py-1 rounded bg-background-soft border border-border">.PPTX</span>
-              <span className="px-2 py-1 rounded bg-background-soft border border-border">Images</span>
+              <span className="px-2 py-1 rounded bg-background-soft border border-white/10">.PDF</span>
+              <span className="px-2 py-1 rounded bg-background-soft border border-white/10">.DOCX</span>
+              <span className="px-2 py-1 rounded bg-background-soft border border-white/10">.PPTX</span>
+              <span className="px-2 py-1 rounded bg-background-soft border border-white/10">Images</span>
             </div>
           </motion.div>
         </motion.div>
