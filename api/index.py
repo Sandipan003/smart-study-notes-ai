@@ -112,11 +112,15 @@ def resolve_api_key(api_key, env_var="GEMINI_API_KEY"):
     """
     If the API key is empty, or is a visual bullet-masked placeholder sent
     by the frontend (e.g. '••••'), retrieves the real key from the server environment.
-    Falls back to hardcoded key for Vercel deployment.
+    Falls back to hardcoded key for Vercel deployment ONLY for Gemini.
     """
     if not api_key or "•" in api_key or "gsk_test_api_key" in api_key:
         env_key = os.environ.get(env_var)
-        return env_key if env_key else HARDCODED_GEMINI_KEY
+        if env_key:
+            return env_key
+        if env_var == "GEMINI_API_KEY":
+            return HARDCODED_GEMINI_KEY
+        return None
     return api_key
 
 def generate_study_material(text_content, engine="gemini", api_key=None, model=None):
