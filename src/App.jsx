@@ -1,42 +1,47 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Sparkles, BookOpen, Layers, HelpCircle, FileText,
-  AlertTriangle, History, X, Zap, Brain, Target, LogOut
-} from 'lucide-react';
-import UploadArea from './components/UploadArea';
+import { getSupabaseClient } from './utils/auth';
+
+// Public Views
+import LandingPage from './components/landing/LandingPage';
+import AuthView from './components/AuthView';
+
+// Authenticated Layout
+import AppSidebar from './components/layout/AppSidebar';
+import MobileBottomNav from './components/layout/MobileBottomNav';
+
+// Workspaces
+import UploadArea from './components/UploadArea'; // To be replaced by NewStudyComposer later
 import SummaryView from './components/SummaryView';
 import FlashcardsView from './components/FlashcardsView';
 import QuizView from './components/QuizView';
-import AuthView from './components/AuthView';
-import { getSupabaseClient } from './utils/auth';
+import LibraryView from './components/library/LibraryView';
 
-// Relative URL works for both Vercel deployment and local dev proxy
+import UnifiedWorkspace from './components/study/UnifiedWorkspace';
+
 const BACKEND_URL = '';
-
-// Empty string forces the backend to use the GROQ_API_KEY environment variable from Vercel
 const GROQ_API_KEY = '';
 const GROQ_MODEL   = 'llama-3.3-70b-versatile';
 
 const LOADING_STAGES = [
-  'Reading uploaded document...',
-  'Extracting text from pages...',
-  'Formatting notes structure...',
-  'Running GenAI synthesis model...',
-  'Formulating conceptual flashcards...',
-  'Curating multiple-choice questions...',
-  'Assembling your custom study guide...',
+  'Connecting ideas across your material...',
+  'Extracting key concepts...',
+  'Structuring knowledge hierarchy...',
+  'Building active recall flashcards...',
+  'Curating multiple-choice assessments...',
+  'Preparing your Study Workspace...',
 ];
 
 export default function App() {
-  const [activeTab, setActiveTab]         = useState('upload');
+  const [activeTab, setActiveTab]         = useState('upload'); // 'upload', 'summary', 'flashcards', 'quiz', 'tutor'
+  const [currentView, setCurrentView]     = useState('dashboard'); // 'dashboard', 'new-study', 'library', 'recent', 'tutor'
+  
   const [studyData, setStudyData]         = useState(null);
   const [isGenerating, setIsGenerating]   = useState(false);
   const [loadingStage, setLoadingStage]   = useState('');
   const [toasts, setToasts]               = useState([]);
-  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  
   const [pastGuides, setPastGuides]       = useState([]);
   const [activeGuideId, setActiveGuideId] = useState(null);
-  const [serverOnline, setServerOnline]   = useState(false);
   const [supabaseOk, setSupabaseOk]       = useState(false);
   
   // Auth state variables
@@ -45,7 +50,7 @@ export default function App() {
   const [authLoaded, setAuthLoaded]       = useState(false);
   const [showAuth, setShowAuth]           = useState(false);
 
-  // ── Initialize Supabase client and session ──
+  // Initialize Supabase
   useEffect(() => {
     getSupabaseClient()
       .then(client => {
@@ -54,60 +59,31 @@ export default function App() {
           setSession(session);
           setAuthLoaded(true);
         });
-
         const { data: { subscription } } = client.auth.onAuthStateChange((_event, currentSession) => {
           setSession(currentSession);
           setAuthLoaded(true);
         });
-
         return () => subscription.unsubscribe();
       })
       .catch(err => {
-        console.error("Supabase initialization error:", err);
-        setAuthLoaded(true); // fall back to offline mode
+        console.error("Supabase init error:", err);
+        setAuthLoaded(true);
       });
   }, []);
 
-  // ── Server health polling ──
+  // Server Health
   useEffect(() => {
+    const checkHealth = async () => {
+      try {
+        const r = await fetch(`${BACKEND_URL}/api/health`);
+        if (r.ok) {
+          const d = await r.json();
+          setSupabaseOk(!!d.supabase_configured);
+        }
+      } catch {}
+    };
     checkHealth();
-    const t = setInterval(checkHealth, 15000);
-    return () => clearInterval(t);
   }, []);
-
-  // ── Fetch guide history when Session is ready ──
-  useEffect(() => {
-    if (session) fetchGuides();
-  }, [session]);
-
-  // ── Loading stage cycling ──
-  useEffect(() => {
-    let iv;
-    if (isGenerating) {
-      let i = 0;
-      setLoadingStage(LOADING_STAGES[0]);
-      iv = setInterval(() => {
-        i = (i + 1) % LOADING_STAGES.length;
-        setLoadingStage(LOADING_STAGES[i]);
-      }, 3200);
-    }
-    return () => clearInterval(iv);
-  }, [isGenerating]);
-
-  const checkHealth = async () => {
-    try {
-      const r = await fetch(`${BACKEND_URL}/api/health`);
-      if (r.ok) {
-        const d = await r.json();
-        setServerOnline(true);
-        setSupabaseOk(!!d.supabase_configured);
-      } else {
-        setServerOnline(false);
-      }
-    } catch {
-      setServerOnline(false);
-    }
-  };
 
   const fetchGuides = async () => {
     if (!session) return;
@@ -119,11 +95,16 @@ export default function App() {
     } catch {}
   };
 
+  useEffect(() => {
+    if (session && currentView === 'library') {
+      fetchGuides();
+    }
+  }, [session, currentView]);
+
   const loadGuide = async (id) => {
     if (!session) return;
-    setIsHistoryOpen(false);
     setIsGenerating(true);
-    setLoadingStage('Retrieving study notes from database...');
+    setCurrentView('workspace');
     try {
       const r = await fetch(`${BACKEND_URL}/api/get-guide/${id}`, {
         headers: { 'Authorization': `Bearer ${session.access_token}` }
@@ -132,16 +113,40 @@ export default function App() {
         const d = await r.json();
         setActiveGuideId(id);
         setStudyData({ summary: d.summary, flashcards: d.flashcards || [], quiz: d.quiz || [] });
-        setActiveTab('summary');
-        toast('Study companion loaded from database!', 'success');
-      } else {
-        toast('Failed to retrieve study guide.', 'error');
+        toast('Study companion loaded!', 'success');
       }
     } catch (e) {
       toast('Error: ' + e.message, 'error');
+      setCurrentView('library');
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  // Sync Views based on state
+  useEffect(() => {
+    if (studyData) {
+      setCurrentView('workspace');
+    }
+  }, [studyData]);
+
+  const handleSignOut = async () => {
+    if (!supabase) return;
+    try {
+      await supabase.auth.signOut();
+      setStudyData(null);
+      setCurrentView('dashboard');
+      setPastGuides([]);
+      setShowAuth(false);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const toast = (message, type = 'info') => {
+    const id = Date.now();
+    setToasts(p => [...p, { id, message, type }]);
+    setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 4500);
   };
 
   const saveGuide = async (data, title = 'Untitled Notes') => {
@@ -159,25 +164,15 @@ export default function App() {
         const saved = await r.json();
         setActiveGuideId(saved.id);
         fetchGuides();
-        toast('Auto-saved to Supabase!', 'success');
+        toast('Auto-saved to Library!', 'success');
       }
     } catch {}
-  };
-
-  const toast = (message, type = 'info') => {
-    const id = Date.now();
-    setToasts(p => [...p, { id, message, type }]);
-    setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 4500);
   };
 
   const handleGenerate = async (inputSource) => {
     setIsGenerating(true);
     setStudyData(null);
-
-    const headers = {};
-    if (session) {
-      headers['Authorization'] = `Bearer ${session.access_token}`;
-    }
+    const headers = session ? { 'Authorization': `Bearer ${session.access_token}` } : {};
 
     try {
       let res;
@@ -188,18 +183,11 @@ export default function App() {
         fd.append('apiKey', GROQ_API_KEY);
         fd.append('model', GROQ_MODEL);
         fd.append('useFallback', 'false');
-        res = await fetch(`${BACKEND_URL}/api/generate`, { 
-          method: 'POST', 
-          headers: headers,
-          body: fd 
-        });
+        res = await fetch(`${BACKEND_URL}/api/generate`, { method: 'POST', headers, body: fd });
       } else {
         res = await fetch(`${BACKEND_URL}/api/text-generate`, {
           method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            ...headers
-          },
+          headers: { 'Content-Type': 'application/json', ...headers },
           body: JSON.stringify({
             text: inputSource.data,
             engine: 'groq',
@@ -211,335 +199,117 @@ export default function App() {
       }
 
       let data;
-      try {
-        data = await res.json();
-      } catch (jsonErr) {
-        const errorText = await res.text().catch(() => '');
-        if (res.status === 413) throw new Error("File is too large! Vercel's free tier limits uploads to 4.5 MB.");
-        throw new Error(`Server returned ${res.status}: ${res.statusText}. ${errorText.substring(0, 50)}`);
-      }
+      try { data = await res.json(); } 
+      catch (e) { throw new Error(`Server error: ${res.status}`); }
+      
       if (!res.ok) throw new Error(data.error || 'Generation failed.');
 
       setStudyData(data);
-      setActiveTab('summary');
       toast('Study companion created successfully! ✨', 'success');
 
       if (session) {
-        const title = inputSource.type === 'pdf'
-          ? inputSource.data.name
-          : `Notes — ${new Date().toLocaleDateString()}`;
+        const title = inputSource.type === 'pdf' ? inputSource.data.name : `Notes — ${new Date().toLocaleDateString()}`;
         saveGuide(data, title);
       }
     } catch (e) {
-      console.error(e);
       toast(e.message || 'Failed to generate study guide.', 'error');
     } finally {
       setIsGenerating(false);
     }
   };
 
-  const handleReset = () => {
-    setStudyData(null);
-    setActiveGuideId(null);
-    setActiveTab('upload');
-  };
-
-  const handleSignOut = async () => {
-    if (!supabase) return;
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      handleReset();
-      setPastGuides([]);
-      toast('Signed out successfully.', 'info');
-    } catch (e) {
-      toast(e.message || 'Failed to sign out.', 'error');
-    }
-  };
-
-  const SETTINGS = { engine: 'groq', apiKey: GROQ_API_KEY, model: GROQ_MODEL, useFallback: false };
-
-  // Full-page glass loader while loading auth session
   if (!authLoaded) {
     return (
-      <div className="app-shell flex items-center justify-center" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div className="glass loading-overlay" style={{ position: 'relative' }}>
-          <div className="loading-ring" />
-          <div className="loading-title">Initializing StudyGenius</div>
-          <div className="loading-stage">Establishing secure session...</div>
-        </div>
+      <div className="min-h-screen bg-background-void flex items-center justify-center text-brand-primary">
+        <div className="w-12 h-12 border-4 border-brand-primary/20 border-t-brand-primary rounded-full animate-spin"></div>
       </div>
     );
   }
 
+  // PUBLIC FLOW (Unauthenticated)
+  if (!session) {
+    if (showAuth) {
+      return <AuthView supabaseClient={supabase} setSession={setSession} />;
+    }
+    return <LandingPage onSignInClick={() => setShowAuth(true)} />;
+  }
+
+  // AUTHENTICATED FLOW
   return (
-    <div className="app-shell">
-      {/* === Animated Background Orbs === */}
-      <div className="bg-orbs" aria-hidden="true">
-        <div className="orb orb-1" />
-        <div className="orb orb-2" />
-        <div className="orb orb-3" />
-        <div className="orb orb-4" />
-      </div>
-
-      {/* === Top Navigation === */}
-      <nav className="app-nav" role="navigation">
-        <div className="nav-logo">
-          <div className="nav-logo-icon">
-            <BookOpen size={20} color="#05081a" />
-          </div>
-          <div>
-            <span className="nav-logo-text">StudyGenius AI</span>
-            <span className="nav-logo-sub">Smart Study Notes Generator</span>
-          </div>
-        </div>
-
-        <div className="nav-actions">
-          {session ? (
-            <>
-              <button
-                className="btn btn-ghost"
-                onClick={() => { fetchGuides(); setIsHistoryOpen(true); }}
-                style={{ fontSize: '0.82rem', padding: '0.5rem 1rem', gap: '0.4rem' }}
-              >
-                <History size={15} />
-                <span className="nav-btn-text">Saved Guides</span>
-              </button>
-              {studyData && (
-                <button className="btn btn-secondary" onClick={handleReset} style={{ fontSize: '0.82rem', padding: '0.5rem 1rem' }}>
-                  New Study
-                </button>
-              )}
-              <button
-                className="btn btn-ghost text-red"
-                onClick={handleSignOut}
-                style={{ fontSize: '0.82rem', padding: '0.5rem 1rem', gap: '0.4rem', color: '#ff4d4d' }}
-              >
-                <LogOut size={15} />
-                <span className="nav-btn-text">Sign Out</span>
-              </button>
-            </>
-          ) : (
-            <button
-              className="btn btn-primary"
-              onClick={() => setShowAuth(!showAuth)}
-              style={{ fontSize: '0.82rem', padding: '0.5rem 1.2rem' }}
-            >
-              {showAuth ? 'Back to Home' : 'Sign In'}
-            </button>
-          )}
-        </div>
-      </nav>
-
-      {/* === If Not Logged In: Render Hero with CTA or AuthView based on showAuth state === */}
-      {!session ? (
-        showAuth ? (
-          <div className="auth-dedicated-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '70vh', padding: '2rem 0' }}>
-            <AuthView supabase={supabase} onAuthSuccess={(sess) => setSession(sess)} toast={toast} />
-          </div>
-        ) : (
-          <section className="hero-section" style={{ textAlign: 'center', maxWidth: '900px', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', padding: '4rem 1.5rem' }}>
-            <div className="hero-badge">
-              <span className="badge-dot" />
-              Powered by Groq Llama 3
-            </div>
-
-            <h1 className="hero-title" style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', margin: '0.5rem 0' }}>
-              <span className="title-line-1">Smart Study Notes</span>
-              <span className="title-line-2">AI-Powered Learning Engine</span>
-            </h1>
-
-            <p className="hero-subtitle" style={{ maxWidth: '650px', margin: '0 auto 1.5rem' }}>
-              Upload your PDF or paste lecture notes — get an instant AI-generated
-              summary, interactive flashcards, and a multiple-choice quiz.
-            </p>
-
-            <button className="btn btn-primary" onClick={() => setShowAuth(true)} style={{ padding: '0.85rem 2.2rem', fontSize: '1rem', boxShadow: '0 0 25px rgba(0, 245, 212, 0.25)', border: '1px solid var(--neon-cyan)' }}>
-              Get Started for Free
-            </button>
-
-            <div className="hero-features" style={{ justifyContent: 'center', marginTop: '1.5rem' }}>
-              <div className="feature-pill"><Zap size={14} /> Llama 3.3 70B</div>
-              <div className="feature-pill"><Brain size={14} /> Smart Summaries</div>
-              <div className="feature-pill"><Layers size={14} /> 3D Flashcards</div>
-              <div className="feature-pill"><Target size={14} /> Quiz Generation</div>
-            </div>
-
-            <div className="feature-cards-row" style={{ marginTop: '3.5rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '2rem', width: '100%' }}>
-              <div className="feature-card">
-                <div className="feature-card-icon cyan">
-                  <FileText size={22} />
-                </div>
-                <h3>Smart Summary</h3>
-                <p>AI extracts and structures key concepts, equations, and definitions from your notes.</p>
-              </div>
-              <div className="feature-card">
-                <div className="feature-card-icon purple">
-                  <Layers size={22} />
-                </div>
-                <h3>3D Flashcards</h3>
-                <p>Flip through interactive cards. Tag as mastered or review later to track progress.</p>
-              </div>
-              <div className="feature-card">
-                <div className="feature-card-icon pink">
-                  <HelpCircle size={22} />
-                </div>
-                <h3>MCQ Quiz</h3>
-                <p>Test your understanding with AI-generated multiple-choice questions and explanations.</p>
-              </div>
-            </div>
-          </section>
-        )
-      ) : (
-        <>
-          {/* === Hero (only on upload tab, no study data) === */}
-          {activeTab === 'upload' && !studyData && !isGenerating && (
-            <section className="hero-section">
-              <div className="hero-badge">
-                <span className="badge-dot" />
-                Active Session: {session.user.email}
-              </div>
-
-              <h1 className="hero-title">
-                <span className="title-line-1">Study Workspace</span>
-                <span className="title-line-2">Generate Study Notes</span>
-              </h1>
-
-              <p className="hero-subtitle">
-                Upload your study materials below. Once compiled, your guides will be safely synced to your account.
-              </p>
-
-              <div className="hero-features">
-                <div className="feature-pill"><Zap size={14} /> Llama 3.3 70B</div>
-                <div className="feature-pill"><Brain size={14} /> Smart Summaries</div>
-                <div className="feature-pill"><Layers size={14} /> 3D Flashcards</div>
-                <div className="feature-pill"><Target size={14} /> Quiz Generation</div>
-              </div>
-            </section>
-          )}
-
-          {/* === Main Content Area === */}
-          <main className="main-content">
-            {/* Tab navigation (only when study data exists) */}
-            {studyData && !isGenerating && (
-              <nav className="tabs-nav" role="tablist">
-                {[
-                  { id: 'summary',    icon: <FileText size={16} />,    label: 'Summary' },
-                  { id: 'flashcards', icon: <Layers size={16} />,      label: 'Flashcards' },
-                  { id: 'quiz',       icon: <HelpCircle size={16} />,  label: 'Quiz' },
-                ].map(tab => (
-                  <button
-                    key={tab.id}
-                    role="tab"
-                    aria-selected={activeTab === tab.id}
-                    className={`tab-item ${activeTab === tab.id ? 'active' : ''}`}
-                    onClick={() => setActiveTab(tab.id)}
-                  >
-                    {tab.icon}
-                    {tab.label}
-                  </button>
-                ))}
-              </nav>
-            )}
-
-            {/* === Loading State === */}
-            {isGenerating && (
-              <div className="glass loading-overlay">
-                <div className="loading-ring" />
-                <div>
-                  <div className="loading-title">Synthesizing Notes</div>
-                  <div className="loading-stage">{loadingStage}</div>
-                </div>
-                <div className="loading-dots">
-                  <div className="loading-dot" />
-                  <div className="loading-dot" />
-                  <div className="loading-dot" />
-                </div>
-              </div>
-            )}
-
-            {/* === Content Panels === */}
-            {!isGenerating && (
-              <>
-                {activeTab === 'upload' && (
-                  <UploadArea onGenerate={handleGenerate} isGenerating={isGenerating} />
-                )}
-                {activeTab === 'summary' && studyData && (
-                  <SummaryView
-                    summary={studyData.summary}
-                    guideId={activeGuideId}
-                    settings={SETTINGS}
-                    supabaseConfigured={supabaseOk}
-                    backendUrl={BACKEND_URL}
-                    accessToken={session.access_token}
-                  />
-                )}
-                {activeTab === 'flashcards' && studyData && (
-                  <FlashcardsView flashcards={studyData.flashcards} />
-                )}
-                {activeTab === 'quiz' && studyData && (
-                  <QuizView quiz={studyData.quiz} onResetApp={handleReset} />
-                )}
-              </>
-            )}
-          </main>
-        </>
-      )}
-
-      {/* === History Drawer === */}
-      <div
-        className={`drawer-overlay ${isHistoryOpen ? 'open' : ''}`}
-        onClick={() => setIsHistoryOpen(false)}
-        aria-hidden="true"
+    <div className="flex h-screen w-full bg-background-void overflow-hidden text-text-primary font-sans">
+      <AppSidebar 
+        userEmail={session.user.email} 
+        onSignOut={handleSignOut} 
+        currentView={currentView}
+        setCurrentView={setCurrentView}
       />
-      <aside className={`drawer-panel glass-elevated ${isHistoryOpen ? 'open' : ''}`} role="complementary">
-        <div className="drawer-header">
-          <div className="drawer-title">
-            <History size={18} style={{ color: 'var(--neon-cyan)' }} />
-            Saved Guides
-          </div>
-          <button
-            className="btn btn-icon"
-            onClick={() => setIsHistoryOpen(false)}
-            aria-label="Close history panel"
-          >
-            <X size={16} />
-          </button>
-        </div>
 
-        <div className="history-items">
-          {pastGuides.length === 0 ? (
-            <div className="history-empty">
-              No saved guides yet. Generate study notes to auto-save them here!
+      <main className="flex-1 overflow-y-auto relative bg-background-void">
+        <div className="max-w-[1440px] mx-auto p-4 md:p-8 pb-32 md:pb-8">
+          
+          {currentView === 'dashboard' && (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <h1 className="text-3xl font-display font-bold mb-8">Ready to continue learning?</h1>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                <button onClick={() => setCurrentView('new-study')} className="bg-background-surface p-6 rounded-2xl border border-border-strong hover:border-brand-primary transition-colors text-left flex flex-col items-start gap-4 shadow-layer-1 hover:shadow-layer-2 hover:-translate-y-1">
+                  <div className="w-12 h-12 rounded-xl bg-brand-primary/10 text-brand-primary flex items-center justify-center">
+                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg">Upload Material</h3>
+                    <p className="text-text-secondary text-sm mt-1">PDFs, Docs, Images</p>
+                  </div>
+                </button>
+              </div>
             </div>
-          ) : (
-            pastGuides.map(g => (
-              <button
-                key={g.id}
-                className={`history-item-btn ${activeGuideId === g.id ? 'active' : ''}`}
-                onClick={() => loadGuide(g.id)}
-              >
-                <span className="history-item-title">{g.title}</span>
-                <span className="history-item-date">
-                  {new Date(g.created_at).toLocaleString()}
-                </span>
-              </button>
-            ))
           )}
-        </div>
-      </aside>
 
-      {/* === Toast Notifications === */}
-      <div className="toast-stack" role="alert" aria-live="polite">
+          {currentView === 'new-study' && (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto">
+              <h1 className="text-3xl font-display font-bold mb-2">What are we studying today?</h1>
+              <p className="text-text-secondary mb-8">Add your material and StudyGenius AI will build your personalized study workspace.</p>
+              
+              <UploadArea 
+                onGenerate={handleGenerate}
+                isGenerating={isGenerating} 
+              />
+            </div>
+          )}
+
+          {currentView === 'library' && (
+            <LibraryView 
+              pastGuides={pastGuides} 
+              activeGuideId={activeGuideId} 
+              onLoadGuide={loadGuide} 
+            />
+          )}
+
+          {currentView === 'workspace' && studyData && (
+            <UnifiedWorkspace 
+               studyData={studyData}
+               activeGuideId={activeGuideId}
+               session={session}
+               onReset={() => {
+                 setStudyData(null);
+                 setCurrentView('dashboard');
+               }}
+            />
+          )}
+
+        </div>
+      </main>
+
+      <MobileBottomNav currentView={currentView} setCurrentView={setCurrentView} />
+
+      {/* Toast Notifications */}
+      <div className="fixed bottom-24 md:bottom-8 right-4 md:right-8 z-50 flex flex-col gap-2 pointer-events-none">
         {toasts.map(t => (
-          <div key={t.id} className={`toast ${t.type}`}>
-            {t.type === 'error'
-              ? <AlertTriangle size={16} />
-              : <Sparkles size={16} />}
+          <div key={t.id} className={`pointer-events-auto px-4 py-3 rounded-xl border shadow-layer-3 flex items-center gap-3 backdrop-blur-md ${t.type === 'error' ? 'bg-feedback-error/10 border-feedback-error/20 text-feedback-error' : 'bg-background-elevated/90 border-border-strong text-text-primary'}`}>
             <span>{t.message}</span>
           </div>
         ))}
       </div>
+
     </div>
   );
 }

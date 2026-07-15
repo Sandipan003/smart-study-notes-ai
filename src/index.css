@@ -1,7 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+@import "tailwindcss";
+@config "../tailwind.config.js";
 
 /* ═══════════════════════════════════════════════
-   DESIGN SYSTEM TOKENS
+   DESIGN SYSTEM TOKENS - THE KNOWLEDGE DIMENSION
 ═══════════════════════════════════════════════ */
 :root {
   font-family: 'Inter', sans-serif;
@@ -10,46 +13,51 @@
   color-scheme: dark;
 
   /* === Core Palette === */
-  --bg-void:    #050816;
-  --bg-deep:    #080d1e;
-  --bg-surface: rgba(10, 14, 35, 0.6);
-  --bg-elevated: rgba(15, 20, 50, 0.85);
-  --bg-card:    rgba(12, 16, 40, 0.7);
+  --bg-void:    #07090D; /* Obsidian Ink */
+  --bg-deep:    #0D1117; /* Deep Graphite */
+  --bg-surface: #121820; /* Carbon Slate */
+  --bg-elevated: #171E27; /* Soft Elevated Surface */
+  --bg-card:    rgba(18, 24, 32, 0.85);
 
-  /* === Neon Accents === */
-  --neon-cyan:    #00f5d4;
-  --neon-purple:  #7c3aed;
-  --neon-indigo:  #6366f1;
-  --neon-pink:    #ec4899;
-  --neon-gold:    #f59e0b;
-  --neon-green:   #10b981;
-  --neon-blue:    #3b82f6;
+  /* === Brand Accents === */
+  --brand-mint:       #62F6C5; /* Electric Mint */
+  --brand-amber:      #F5C76B; /* Luminous Amber */
+  --brand-periwinkle: #9FAEFF; /* Soft Periwinkle */
+  
+  /* === Feedback Accents === */
+  --neon-cyan:    #62F6C5;
+  --neon-purple:  #9FAEFF;
+  --neon-indigo:  #9FAEFF;
+  --neon-pink:    #F5C76B;
+  --neon-gold:    #F5C76B;
+  --neon-green:   #63E6A7;
+  --neon-blue:    #79A8FF;
 
   /* === Gradients === */
-  --grad-primary:   linear-gradient(135deg, #6366f1 0%, #00f5d4 100%);
-  --grad-secondary: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
-  --grad-gold:      linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
-  --grad-card:      linear-gradient(145deg, rgba(99,102,241,0.08) 0%, rgba(0,245,212,0.05) 100%);
-  --grad-hero:      radial-gradient(ellipse at 30% 50%, rgba(99,102,241,0.3) 0%, transparent 60%),
-                    radial-gradient(ellipse at 70% 30%, rgba(0,245,212,0.2) 0%, transparent 60%),
-                    radial-gradient(ellipse at 50% 80%, rgba(236,72,153,0.15) 0%, transparent 60%);
+  --grad-primary:   linear-gradient(135deg, #9FAEFF 0%, #62F6C5 100%);
+  --grad-secondary: linear-gradient(135deg, #F5C76B 0%, #9FAEFF 100%);
+  --grad-ai:        linear-gradient(90deg, #62F6C5 0%, #9FAEFF 50%, #F5C76B 100%);
+  --grad-card:      linear-gradient(145deg, rgba(159,174,255,0.05) 0%, rgba(98,246,197,0.03) 100%);
+  --grad-hero:      radial-gradient(ellipse at 30% 50%, rgba(159,174,255,0.15) 0%, transparent 60%),
+                    radial-gradient(ellipse at 70% 30%, rgba(98,246,197,0.1) 0%, transparent 60%),
+                    radial-gradient(ellipse at 50% 80%, rgba(245,199,107,0.05) 0%, transparent 60%);
 
   /* === Borders === */
-  --border-glass:  rgba(255,255,255,0.06);
-  --border-active: rgba(99,102,241,0.5);
-  --border-glow:   rgba(0,245,212,0.35);
+  --border-glass:  rgba(255,255,255,0.08);
+  --border-active: rgba(159,174,255,0.4);
+  --border-strong: rgba(255,255,255,0.14);
+  --border-glow:   rgba(98,246,197,0.35);
 
   /* === Text === */
-  --text-primary:   #f0f0ff;
-  --text-secondary: #9ca3c7;
-  --text-muted:     #4b5280;
-  --text-accent:    #a5b4fc;
+  --text-primary:   #F5F7FA;
+  --text-secondary: #A7B0BE;
+  --text-muted:     #697386;
+  --text-accent:    #9FAEFF;
 
   /* === Glows === */
-  --glow-cyan:    0 0 30px rgba(0,245,212,0.3), 0 0 60px rgba(0,245,212,0.1);
-  --glow-purple:  0 0 30px rgba(124,58,237,0.4), 0 0 60px rgba(124,58,237,0.15);
-  --glow-pink:    0 0 30px rgba(236,72,153,0.35), 0 0 60px rgba(236,72,153,0.1);
-  --glow-indigo:  0 0 30px rgba(99,102,241,0.35), 0 0 60px rgba(99,102,241,0.1);
+  --glow-cyan:    0 0 30px rgba(98,246,197,0.3), 0 0 60px rgba(98,246,197,0.1);
+  --glow-purple:  0 0 30px rgba(159,174,255,0.4), 0 0 60px rgba(159,174,255,0.15);
+  --glow-indigo:  0 0 30px rgba(159,174,255,0.35), 0 0 60px rgba(159,174,255,0.1);
   --shadow-3d:    0 20px 60px rgba(0,0,0,0.5), 0 8px 25px rgba(0,0,0,0.3);
   --shadow-card:  0 10px 40px rgba(0,0,0,0.4);
 
