@@ -586,7 +586,7 @@ def query_supabase(method, table, data=None, params=None):
     sb_url = os.environ.get("SUPABASE_URL") or os.environ.get("NEXT_PUBLIC_SUPABASE_URL")
     sb_key = os.environ.get("SUPABASE_KEY") or os.environ.get("SUPABASE_ANON_KEY") or os.environ.get("NEXT_PUBLIC_SUPABASE_ANON_KEY")
     if not sb_url or not sb_key:
-        return None
+        raise ValueError("Supabase connection credentials (SUPABASE_URL / SUPABASE_KEY) are missing in environment variables.")
         
     sb_url = sb_url.strip().rstrip('/')
     url = f"{sb_url}/rest/v1/{table}"
@@ -598,24 +598,19 @@ def query_supabase(method, table, data=None, params=None):
         "Prefer": "return=representation"
     }
     
-    try:
-        if method == "POST":
-            r = requests.post(url, headers=headers, json=data, params=params, timeout=15)
-        elif method == "GET":
-            r = requests.get(url, headers=headers, params=params, timeout=15)
-        elif method == "DELETE":
-            r = requests.delete(url, headers=headers, params=params, timeout=15)
-        else:
-            return None
-            
-        if r.status_code in [200, 201, 204]:
-            return r.json() if r.text else True
-        else:
-            print(f"Supabase REST Error ({r.status_code}): {r.text}")
-            return None
-    except Exception as e:
-        print(f"Supabase Request failed: {e}")
-        return None
+    if method == "POST":
+        r = requests.post(url, headers=headers, json=data, params=params, timeout=15)
+    elif method == "GET":
+        r = requests.get(url, headers=headers, params=params, timeout=15)
+    elif method == "DELETE":
+        r = requests.delete(url, headers=headers, params=params, timeout=15)
+    else:
+        raise ValueError(f"Invalid method: {method}")
+        
+    if r.status_code in [200, 201, 204]:
+        return r.json() if r.text else True
+    else:
+        raise Exception(f"Supabase API Error ({r.status_code}): {r.text}")
 
 @app.route('/api/save-guide', methods=['POST'])
 def save_guide():
@@ -628,8 +623,6 @@ def save_guide():
             "quiz": data.get("quiz", [])
         }
         res = query_supabase("POST", "study_guides", data=payload)
-        if not res:
-            return jsonify({"error": "Failed to save guide to Supabase. Check database logs."}), 500
         return jsonify(res[0] if isinstance(res, list) else res)
     except Exception as e:
         traceback.print_exc()
@@ -639,8 +632,6 @@ def save_guide():
 def list_guides():
     try:
         res = query_supabase("GET", "study_guides", params={"select": "id,title,created_at", "order": "created_at.desc"})
-        if res is None:
-            return jsonify([])
         return jsonify(res)
     except Exception as e:
         traceback.print_exc()
@@ -667,8 +658,6 @@ def save_chat_msg():
             "content": data.get("content")
         }
         res = query_supabase("POST", "chat_history", data=payload)
-        if not res:
-            return jsonify({"error": "Failed to save chat log."}), 500
         return jsonify(res[0] if isinstance(res, list) else res)
     except Exception as e:
         traceback.print_exc()
@@ -678,8 +667,6 @@ def save_chat_msg():
 def get_chat_history(guide_id):
     try:
         res = query_supabase("GET", "chat_history", params={"guide_id": f"eq.{guide_id}", "select": "*", "order": "created_at.asc"})
-        if res is None:
-            return jsonify([])
         return jsonify(res)
     except Exception as e:
         traceback.print_exc()
