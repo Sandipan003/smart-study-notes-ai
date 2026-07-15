@@ -166,7 +166,7 @@ Response constraints:
         # Combine instructions and user prompt for Gemini
         gemini_prompt = f"{system_prompt}\n\nHere is the study material text to process:\n\n{trimmed_content}"
         
-        url = f"https://generativelanguage.googleapis.com/v1/models/{gemini_model}:generateContent?key={gemini_api_key}"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{gemini_model}:generateContent?key={gemini_api_key}"
         headers = {"Content-Type": "application/json"}
         payload = {
             "contents": [{
@@ -299,7 +299,7 @@ def extract_text_via_gemini_vision(file_bytes, api_key=None):
             img_bytes = pix.tobytes("png")
             base64_img = base64.b64encode(img_bytes).decode('utf-8')
             
-            url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={gemini_key}"
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_key}"
             headers = {"Content-Type": "application/json"}
             payload = {
                 "contents": [{
@@ -706,7 +706,7 @@ Here is the study material summary context:
                 "parts": [{"text": f"[CONTEXT: Refer to system instructions and summary material]\nUser Message: {message}"}]
             })
             
-            url = f"https://generativelanguage.googleapis.com/v1/models/{gemini_model}:generateContent?key={gemini_api_key}"
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{gemini_model}:generateContent?key={gemini_api_key}"
             headers = {"Content-Type": "application/json"}
             payload = {
                 "contents": contents,
