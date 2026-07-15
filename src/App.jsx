@@ -157,7 +157,14 @@ export default function App() {
         });
       }
 
-      const data = await res.json();
+      let data;
+      try {
+        data = await res.json();
+      } catch (jsonErr) {
+        const errorText = await res.text().catch(() => '');
+        if (res.status === 413) throw new Error("File is too large! Vercel's free tier limits uploads to 4.5 MB.");
+        throw new Error(`Server returned ${res.status}: ${res.statusText}. ${errorText.substring(0, 50)}`);
+      }
       if (!res.ok) throw new Error(data.error || 'Generation failed.');
 
       setStudyData(data);

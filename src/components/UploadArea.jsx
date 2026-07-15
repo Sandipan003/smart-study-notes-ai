@@ -20,11 +20,24 @@ export default function UploadArea({ onGenerate, isGenerating }) {
     setDragOver(false);
     const f = e.dataTransfer.files?.[0];
     if (f && (f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf'))) {
+      if (f.size > 4.5 * 1024 * 1024) {
+        alert("File is too large! Vercel limits uploads to 4.5 MB.");
+        return;
+      }
       setFile(f);
     }
   };
 
-  const onFileInput = (e) => { if (e.target.files?.[0]) setFile(e.target.files[0]); };
+  const onFileInput = (e) => { 
+    const f = e.target.files?.[0];
+    if (f) {
+      if (f.size > 4.5 * 1024 * 1024) {
+        alert("File is too large! Vercel limits uploads to 4.5 MB.");
+        return;
+      }
+      setFile(f);
+    }
+  };
 
   const removeFile = (e) => {
     e.stopPropagation();
@@ -136,7 +149,7 @@ export default function UploadArea({ onGenerate, isGenerating }) {
               <p className="upload-zone-title">
                 {dragOver ? 'Drop your PDF here!' : 'Drag & drop your PDF'}
               </p>
-              <p className="upload-zone-sub">or click to browse — PDF only, max 15 MB</p>
+              <p className="upload-zone-sub">or click to browse — PDF only, max 4.5 MB</p>
             </div>
           )}
         </div>
