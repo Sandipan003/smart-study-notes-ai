@@ -43,6 +43,7 @@ export default function App() {
   const [supabase, setSupabase]           = useState(null);
   const [session, setSession]             = useState(null);
   const [authLoaded, setAuthLoaded]       = useState(false);
+  const [showAuth, setShowAuth]           = useState(false);
 
   // ── Initialize Supabase client and session ──
   useEffect(() => {
@@ -294,7 +295,7 @@ export default function App() {
         </div>
 
         <div className="nav-actions">
-          {session && (
+          {session ? (
             <>
               <button
                 className="btn btn-ghost"
@@ -318,58 +319,77 @@ export default function App() {
                 <span>Sign Out</span>
               </button>
             </>
+          ) : (
+            <button
+              className="btn btn-primary"
+              onClick={() => setShowAuth(!showAuth)}
+              style={{ fontSize: '0.82rem', padding: '0.5rem 1.2rem' }}
+            >
+              {showAuth ? 'Back to Home' : 'Sign In'}
+            </button>
           )}
         </div>
       </nav>
 
-      {/* === If Not Logged In: Render Hero + Auth Side-by-Side === */}
+      {/* === If Not Logged In: Render Hero with CTA or AuthView based on showAuth state === */}
       {!session ? (
-        <div className="auth-landing-layout">
-          <div className="auth-landing-hero">
+        showAuth ? (
+          <div className="auth-dedicated-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '70vh', padding: '2rem 0' }}>
+            <AuthView supabase={supabase} onAuthSuccess={(sess) => setSession(sess)} toast={toast} />
+          </div>
+        ) : (
+          <section className="hero-section" style={{ textAlign: 'center', maxWidth: '900px', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', padding: '4rem 1.5rem' }}>
             <div className="hero-badge">
               <span className="badge-dot" />
               Powered by Groq Llama 3
             </div>
 
-            <h1 className="hero-title">
+            <h1 className="hero-title" style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', margin: '0.5rem 0' }}>
               <span className="title-line-1">Smart Study Notes</span>
               <span className="title-line-2">AI-Powered Learning Engine</span>
             </h1>
 
-            <p className="hero-subtitle">
-              Sign up to extract summaries, flip through interactive 3D flashcards,
-              and challenge yourself with customized quizzes. Every study guide you generate is stored securely in your private account.
+            <p className="hero-subtitle" style={{ maxWidth: '650px', margin: '0 auto 1.5rem' }}>
+              Upload your PDF or paste lecture notes — get an instant AI-generated
+              summary, interactive flashcards, and a multiple-choice quiz.
             </p>
 
-            <div className="feature-cards-column">
-              <div className="feature-card-compact glass">
-                <div className="compact-icon cyan"><FileText size={18} /></div>
-                <div>
-                  <h4>Detailed Summaries</h4>
-                  <p>AI extracts and structures main ideas, equations, and topics.</p>
+            <button className="btn btn-primary" onClick={() => setShowAuth(true)} style={{ padding: '0.85rem 2.2rem', fontSize: '1rem', boxShadow: '0 0 25px rgba(0, 245, 212, 0.25)', border: '1px solid var(--neon-cyan)' }}>
+              Get Started for Free
+            </button>
+
+            <div className="hero-features" style={{ justifyContent: 'center', marginTop: '1.5rem' }}>
+              <div className="feature-pill"><Zap size={14} /> Llama 3.3 70B</div>
+              <div className="feature-pill"><Brain size={14} /> Smart Summaries</div>
+              <div className="feature-pill"><Layers size={14} /> 3D Flashcards</div>
+              <div className="feature-pill"><Target size={14} /> Quiz Generation</div>
+            </div>
+
+            <div className="feature-cards-row" style={{ marginTop: '3.5rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '2rem', width: '100%' }}>
+              <div className="feature-card">
+                <div className="feature-card-icon cyan">
+                  <FileText size={22} />
                 </div>
+                <h3>Smart Summary</h3>
+                <p>AI extracts and structures key concepts, equations, and definitions from your notes.</p>
               </div>
-              <div className="feature-card-compact glass">
-                <div className="compact-icon purple"><Layers size={18} /></div>
-                <div>
-                  <h4>3D Flashcards</h4>
-                  <p>Interactive study cards with touch-based flips and progress bars.</p>
+              <div className="feature-card">
+                <div className="feature-card-icon purple">
+                  <Layers size={22} />
                 </div>
+                <h3>3D Flashcards</h3>
+                <p>Flip through interactive cards. Tag as mastered or review later to track progress.</p>
               </div>
-              <div className="feature-card-compact glass">
-                <div className="compact-icon pink"><HelpCircle size={18} /></div>
-                <div>
-                  <h4>Practice Quizzes</h4>
-                  <p>Multiple-choice questions with answers, explanations, and scores.</p>
+              <div className="feature-card">
+                <div className="feature-card-icon pink">
+                  <HelpCircle size={22} />
                 </div>
+                <h3>MCQ Quiz</h3>
+                <p>Test your understanding with AI-generated multiple-choice questions and explanations.</p>
               </div>
             </div>
-          </div>
-
-          <div className="auth-landing-form">
-            <AuthView supabase={supabase} onAuthSuccess={(sess) => setSession(sess)} toast={toast} />
-          </div>
-        </div>
+          </section>
+        )
       ) : (
         <>
           {/* === Hero (only on upload tab, no study data) === */}
