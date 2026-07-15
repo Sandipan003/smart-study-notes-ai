@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, ArrowRight, BrainCircuit, ScanText, Lightbulb, Library, Combine, Cpu, UploadCloud, ChevronRight } from 'lucide-react';
+import { Sparkles, ArrowRight, BrainCircuit, ScanText, Lightbulb, Library, Combine, Cpu, UploadCloud, ChevronRight, FileText } from 'lucide-react';
 import PublicNavbar from '../layout/PublicNavbar';
 
 const KnowledgeCore3D = React.lazy(() => import('../three/KnowledgeCore3D'));
