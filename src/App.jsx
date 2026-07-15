@@ -13,7 +13,7 @@ const BACKEND_URL = '';
 
 // Empty string forces the backend to use the GEMINI_API_KEY environment variable from Vercel
 const GEMINI_API_KEY = '';
-const GEMINI_MODEL   = 'gemini-2.0-flash';
+const GEMINI_MODEL   = 'gemini-1.5-flash';
 
 const LOADING_STAGES = [
   'Reading uploaded document...',
