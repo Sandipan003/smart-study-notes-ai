@@ -276,12 +276,26 @@ export default function App() {
             </div>
           )}
 
-          {currentView === 'library' && (
+          {['library', 'recent', 'summaries'].includes(currentView) && (
             <LibraryView 
               pastGuides={pastGuides} 
               activeGuideId={activeGuideId} 
               onLoadGuide={loadGuide} 
             />
+          )}
+
+          {currentView === 'tutor' && (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-2xl mx-auto text-center mt-20">
+              <div className="w-20 h-20 mx-auto bg-brand-primary/10 rounded-2xl flex items-center justify-center mb-6 border border-brand-primary/20">
+                <svg className="w-10 h-10 text-brand-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+              </div>
+              <h1 className="text-3xl font-display font-bold mb-4">AI Tutor Requires Context</h1>
+              <p className="text-text-secondary mb-8 text-lg">Please open a study guide from your library or create a new one to start chatting with your AI Tutor.</p>
+              <div className="flex justify-center gap-4">
+                <button onClick={() => setCurrentView('new-study')} className="px-6 py-3 bg-brand-primary text-background-void font-bold rounded-xl hover:bg-brand-mint transition-colors">Create New Study</button>
+                <button onClick={() => setCurrentView('library')} className="px-6 py-3 bg-background-soft border border-border-strong rounded-xl hover:bg-background-elevated transition-colors">Go to Library</button>
+              </div>
+            </div>
           )}
 
           {currentView === 'workspace' && studyData && (
