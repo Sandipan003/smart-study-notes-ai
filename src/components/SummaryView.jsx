@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Copy, Check, FileText, Send, Sparkles, HelpCircle, Bot } from 'lucide-react';
 
-export default function SummaryView({ summary, guideId, settings, supabaseConfigured, backendUrl = 'http://localhost:5001' }) {
+export default function SummaryView({ summary, guideId, settings, supabaseConfigured, backendUrl = '' }) {
   const [copied, setCopied]             = useState(false);
   const [messages, setMessages]         = useState([]);
   const [inputMsg, setInputMsg]         = useState('');

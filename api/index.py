@@ -382,10 +382,12 @@ def health():
     # Force dotenv reload to pick up saved keys
     env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env')
     load_dotenv(env_path, override=True)
+    sb_url = os.environ.get("SUPABASE_URL") or os.environ.get("NEXT_PUBLIC_SUPABASE_URL")
+    sb_key = os.environ.get("SUPABASE_KEY") or os.environ.get("SUPABASE_ANON_KEY") or os.environ.get("NEXT_PUBLIC_SUPABASE_ANON_KEY")
     return jsonify({
         "status": "healthy", 
         "engine_env_configured": bool(os.environ.get("GEMINI_API_KEY")),
-        "supabase_configured": bool(os.environ.get("SUPABASE_URL")) and bool(os.environ.get("SUPABASE_KEY"))
+        "supabase_configured": bool(sb_url) and bool(sb_key)
     })
 
 @app.route('/api/save-key', methods=['POST'])
@@ -549,8 +551,8 @@ def query_supabase(method, table, data=None, params=None):
     """
     Executes REST request to Supabase API.
     """
-    sb_url = os.environ.get("SUPABASE_URL")
-    sb_key = os.environ.get("SUPABASE_KEY")
+    sb_url = os.environ.get("SUPABASE_URL") or os.environ.get("NEXT_PUBLIC_SUPABASE_URL")
+    sb_key = os.environ.get("SUPABASE_KEY") or os.environ.get("SUPABASE_ANON_KEY") or os.environ.get("NEXT_PUBLIC_SUPABASE_ANON_KEY")
     if not sb_url or not sb_key:
         return None
         

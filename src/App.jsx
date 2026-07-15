@@ -9,7 +9,7 @@ import FlashcardsView from './components/FlashcardsView';
 import QuizView from './components/QuizView';
 
 // Relative URL works for both Vercel deployment and local dev proxy
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5001';
+const BACKEND_URL = '';
 
 // Pre-wired Gemini API key (no user config needed)
 const GEMINI_API_KEY = 'AIzaSyAQ.Ab8RN6L6pHPJ3jxVrqV84_Go-v3_WkbC6c-7EPl1wbDWvPNSVg';
