@@ -11,9 +11,9 @@ import QuizView from './components/QuizView';
 // Relative URL works for both Vercel deployment and local dev proxy
 const BACKEND_URL = '';
 
-// Empty string forces the backend to use the GEMINI_API_KEY environment variable from Vercel
-const GEMINI_API_KEY = '';
-const GEMINI_MODEL   = 'gemini-flash-latest';
+// Empty string forces the backend to use the GROQ_API_KEY environment variable from Vercel
+const GROQ_API_KEY = '';
+const GROQ_MODEL   = 'llama-3.3-70b-versatile';
 
 const LOADING_STAGES = [
   'Reading uploaded document...',
@@ -138,9 +138,9 @@ export default function App() {
       if (inputSource.type === 'pdf') {
         const fd = new FormData();
         fd.append('file', inputSource.data);
-        fd.append('engine', 'gemini');
-        fd.append('apiKey', GEMINI_API_KEY);
-        fd.append('model', GEMINI_MODEL);
+        fd.append('engine', 'groq');
+        fd.append('apiKey', GROQ_API_KEY);
+        fd.append('model', GROQ_MODEL);
         fd.append('useFallback', 'false');
         res = await fetch(`${BACKEND_URL}/api/generate`, { method: 'POST', body: fd });
       } else {
@@ -149,9 +149,9 @@ export default function App() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             text: inputSource.data,
-            engine: 'gemini',
-            apiKey: GEMINI_API_KEY,
-            model: GEMINI_MODEL,
+            engine: 'groq',
+            apiKey: GROQ_API_KEY,
+            model: GROQ_MODEL,
             useFallback: false,
           }),
         });
@@ -191,7 +191,7 @@ export default function App() {
     setActiveTab('upload');
   };
 
-  const SETTINGS = { engine: 'gemini', apiKey: GEMINI_API_KEY, model: GEMINI_MODEL, useFallback: false };
+  const SETTINGS = { engine: 'groq', apiKey: GROQ_API_KEY, model: GROQ_MODEL, useFallback: false };
 
   return (
     <div className="app-shell">
@@ -239,7 +239,7 @@ export default function App() {
         <section className="hero-section">
           <div className="hero-badge">
             <span className="badge-dot" />
-            Powered by Google Gemini AI
+            Powered by Groq Llama 3
           </div>
 
           <h1 className="hero-title">
@@ -253,7 +253,7 @@ export default function App() {
           </p>
 
           <div className="hero-features">
-            <div className="feature-pill"><Zap size={14} /> Gemini 2.0 Flash</div>
+            <div className="feature-pill"><Zap size={14} /> Llama 3.3 70B</div>
             <div className="feature-pill"><Brain size={14} /> Smart Summaries</div>
             <div className="feature-pill"><Layers size={14} /> 3D Flashcards</div>
             <div className="feature-pill"><Target size={14} /> Quiz Generation</div>

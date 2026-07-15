@@ -215,6 +215,34 @@ Response constraints:
         result_json = response.json()
         raw_content = result_json["message"]["content"]
         
+    elif engine == "groq":
+        groq_api_key = resolve_api_key(api_key, "GROQ_API_KEY")
+        if not groq_api_key:
+            raise ValueError("Groq API Key is missing. Please set GROQ_API_KEY in Vercel environment.")
+            
+        groq_model = model or "llama-3.3-70b-versatile"
+        url = "https://api.groq.com/openai/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {groq_api_key}",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "model": groq_model,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ],
+            "response_format": {"type": "json_object"},
+            "temperature": 0.3
+        }
+        
+        response = requests.post(url, headers=headers, json=payload, timeout=60)
+        if response.status_code != 200:
+            raise Exception(f"Groq API Error ({response.status_code}): {response.text}")
+            
+        result_json = response.json()
+        raw_content = result_json["choices"][0]["message"]["content"]
+
     else:
         raise ValueError(f"Unsupported GenAI engine: {engine}")
 
@@ -386,7 +414,7 @@ def health():
     sb_key = os.environ.get("SUPABASE_KEY") or os.environ.get("SUPABASE_ANON_KEY") or os.environ.get("NEXT_PUBLIC_SUPABASE_ANON_KEY")
     return jsonify({
         "status": "healthy", 
-        "engine_env_configured": bool(os.environ.get("GEMINI_API_KEY")),
+        "engine_env_configured": bool(os.environ.get("GROQ_API_KEY")) or bool(os.environ.get("GEMINI_API_KEY")),
         "supabase_configured": bool(sb_url) and bool(sb_key)
     })
 
@@ -741,6 +769,33 @@ Here is the study material summary context:
             if response.status_code != 200:
                 raise Exception(f"Ollama local error: {response.text}")
             reply = response.json()["message"]["content"]
+            return jsonify({"response": reply})
+
+        elif engine == "groq":
+            groq_api_key = resolve_api_key(api_key, "GROQ_API_KEY")
+            if not groq_api_key:
+                raise ValueError("Groq API Key is missing.")
+                
+            groq_model = model or "llama-3.3-70b-versatile"
+            url = "https://api.groq.com/openai/v1/chat/completions"
+            headers = {
+                "Authorization": f"Bearer {groq_api_key}",
+                "Content-Type": "application/json"
+            }
+            messages = [{"role": "system", "content": system_prompt}]
+            for msg in history:
+                messages.append({"role": msg["role"], "content": msg["content"]})
+            messages.append({"role": "user", "content": message})
+            
+            payload = {
+                "model": groq_model,
+                "messages": messages,
+                "temperature": 0.5
+            }
+            response = requests.post(url, headers=headers, json=payload, timeout=25)
+            if response.status_code != 200:
+                raise Exception(f"Groq API Error: {response.text}")
+            reply = response.json()["choices"][0]["message"]["content"]
             return jsonify({"response": reply})
 
         else:
