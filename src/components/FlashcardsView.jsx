@@ -156,10 +156,7 @@ export default function FlashcardsView({ flashcards }) {
                     {card.front}
                   </h3>
                   
-                  <div className="absolute bottom-6 flex items-center gap-2 text-text-muted text-sm font-medium group-hover:text-brand-primary transition-colors">
-                    <RotateCw className="w-4 h-4" />
-                    <span>Click to reveal</span>
-                  </div>
+
                 </div>
 
                 {/* BACK */}
