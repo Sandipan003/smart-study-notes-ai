@@ -1,21 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Copy, Check, FileText, Send, Sparkles, HelpCircle, Bot } from 'lucide-react';
 
-export default function SummaryView({ summary, guideId, settings, supabaseConfigured, backendUrl = '' }) {
+export default function SummaryView({ summary, guideId, settings, supabaseConfigured, backendUrl = '', accessToken }) {
   const [copied, setCopied]             = useState(false);
   const [messages, setMessages]         = useState([]);
   const [inputMsg, setInputMsg]         = useState('');
   const [isReplying, setIsReplying]     = useState(false);
   const messagesEndRef                  = useRef(null);
 
-  // Load chat history from Supabase if linked
   useEffect(() => {
     if (!guideId || !supabaseConfigured) { setMessages([]); return; }
-    fetch(`${backendUrl}/api/chat/history/${guideId}`)
+    fetch(`${backendUrl}/api/chat/history/${guideId}`, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`
+      }
+    })
       .then(r => r.ok ? r.json() : [])
       .then(d => setMessages(d.map(m => ({ role: m.role, content: m.content }))))
       .catch(() => {});
-  }, [guideId, supabaseConfigured, backendUrl]);
+  }, [guideId, supabaseConfigured, backendUrl, accessToken]);
 
   // Scroll to bottom on new message
   useEffect(() => {
@@ -42,7 +45,10 @@ export default function SummaryView({ summary, guideId, settings, supabaseConfig
     if (guideId && supabaseConfigured) {
       fetch(`${backendUrl}/api/chat/save`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`
+        },
         body: JSON.stringify({ guide_id: guideId, role: 'user', content: text }),
       }).catch(() => {});
     }
@@ -50,7 +56,10 @@ export default function SummaryView({ summary, guideId, settings, supabaseConfig
     try {
       const res = await fetch(`${backendUrl}/api/chat/ask`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`
+        },
         body: JSON.stringify({
           message: text,
           history: messages,
@@ -69,7 +78,10 @@ export default function SummaryView({ summary, guideId, settings, supabaseConfig
       if (guideId && supabaseConfigured) {
         fetch(`${backendUrl}/api/chat/save`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+          },
           body: JSON.stringify({ guide_id: guideId, role: 'assistant', content: reply }),
         }).catch(() => {});
       }

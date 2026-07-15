@@ -422,6 +422,18 @@ def health():
         "supabase_configured": bool(sb_url) and bool(sb_key)
     })
 
+@app.route('/api/config', methods=['GET'])
+def get_config():
+    # Force dotenv reload to pick up saved keys
+    env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env')
+    load_dotenv(env_path, override=True)
+    sb_url = os.environ.get("SUPABASE_URL") or os.environ.get("NEXT_PUBLIC_SUPABASE_URL")
+    sb_key = os.environ.get("SUPABASE_KEY") or os.environ.get("SUPABASE_ANON_KEY") or os.environ.get("NEXT_PUBLIC_SUPABASE_ANON_KEY")
+    return jsonify({
+        "supabaseUrl": sb_url,
+        "supabaseKey": sb_key
+    })
+
 @app.route('/api/save-key', methods=['POST'])
 def save_key():
     """
@@ -590,10 +602,18 @@ def query_supabase(method, table, data=None, params=None):
         
     sb_url = sb_url.strip().rstrip('/')
     url = f"{sb_url}/rest/v1/{table}"
+    
+    # Extract client Authorization JWT if present
+    from flask import has_request_context, request
+    jwt_token = None
+    if has_request_context():
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            jwt_token = auth_header.split(" ")[1]
         
     headers = {
         "apikey": sb_key,
-        "Authorization": f"Bearer {sb_key}",
+        "Authorization": f"Bearer {jwt_token if jwt_token else sb_key}",
         "Content-Type": "application/json",
         "Prefer": "return=representation"
     }
