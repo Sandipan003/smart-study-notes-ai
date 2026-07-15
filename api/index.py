@@ -161,7 +161,7 @@ Response constraints:
         if not gemini_api_key:
             raise ValueError("Gemini API Key is missing. Please provide it in settings or set it on the backend.")
             
-        gemini_model = model or "gemini-pro-latest"
+        gemini_model = model or "gemini-flash-latest"
         
         # Combine instructions and user prompt for Gemini
         gemini_prompt = f"{system_prompt}\n\nHere is the study material text to process:\n\n{trimmed_content}"
@@ -299,7 +299,7 @@ def extract_text_via_gemini_vision(file_bytes, api_key=None):
             img_bytes = pix.tobytes("png")
             base64_img = base64.b64encode(img_bytes).decode('utf-8')
             
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-latest:generateContent?key={gemini_key}"
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={gemini_key}"
             headers = {"Content-Type": "application/json"}
             payload = {
                 "contents": [{
@@ -687,7 +687,7 @@ Here is the study material summary context:
             if not gemini_api_key:
                 raise ValueError("Gemini API Key is missing. Check your settings panel.")
                 
-            gemini_model = model or "gemini-pro-latest"
+            gemini_model = model or "gemini-flash-latest"
             
             # Format chat payload for Gemini API
             contents = []
