@@ -1,130 +1,176 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Sparkles, Home, BookOpen, Layers, Clock, 
-  BrainCircuit, FileText, Settings, User, LogOut, ChevronLeft, ChevronRight 
+  BrainCircuit, FileText, LogOut, ChevronLeft, ChevronRight, User, Settings
 } from 'lucide-react';
+
+const NAV_ITEMS = [
+  { id: 'dashboard', icon: Home, label: 'Home' },
+  { id: 'new-study', icon: Layers, label: 'New Study' },
+  { id: 'library', icon: BookOpen, label: 'My Library' },
+  { id: 'recent', icon: Clock, label: 'Recent' },
+  { id: 'tutor', icon: BrainCircuit, label: 'AI Tutor' },
+];
+
+const TOOL_ITEMS = [
+  { id: 'summaries', icon: FileText, label: 'Summaries' },
+];
 
 export default function AppSidebar({ user, supabase, onSignOut, currentView, setCurrentView, onOpenSettings }) {
   const [collapsed, setCollapsed] = useState(false);
-
   const displayName = user?.user_metadata?.display_name || user?.email?.split('@')[0] || 'Student';
-
-  const navItems = [
-    { id: 'dashboard', icon: Home, label: 'Home' },
-    { id: 'new-study', icon: Layers, label: 'New Study' },
-    { id: 'library', icon: BookOpen, label: 'My Library' },
-    { id: 'recent', icon: Clock, label: 'Recent' },
-    { id: 'tutor', icon: BrainCircuit, label: 'AI Tutor' },
-  ];
+  const email = user?.email || '';
 
   return (
-    <motion.aside 
+    <motion.aside
       initial={false}
-      animate={{ width: collapsed ? 80 : 260 }}
-      className="hidden md:flex flex-col h-screen bg-background-elevated border-r border-border sticky top-0 z-40 transition-all duration-300 ease-in-out"
+      animate={{ width: collapsed ? 72 : 256 }}
+      transition={{ type: 'spring', stiffness: 350, damping: 35 }}
+      className="hidden md:flex flex-col h-screen bg-background-elevated border-r border-border sticky top-0 z-40 overflow-hidden"
     >
-      {/* Header & Logo */}
-      <div className="flex items-center justify-between p-4 h-20 border-b border-border/50">
-        <div className={`flex items-center gap-3 overflow-hidden ${collapsed ? 'justify-center w-full' : ''}`}>
-          <div className="flex-shrink-0 relative flex items-center justify-center w-10 h-10 rounded-xl bg-background-soft border border-border-strong overflow-hidden">
-            <div className="absolute inset-0 bg-grad-primary opacity-20"></div>
-            <Sparkles className="w-5 h-5 text-brand-primary relative z-10" />
+      {/* Logo */}
+      <div className={`flex items-center h-[68px] border-b border-border/50 px-4 shrink-0 ${collapsed ? 'justify-center' : 'gap-3'}`}>
+        <div className="relative flex-shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center overflow-hidden">
+            <Sparkles className="w-4 h-4 text-brand-primary" />
           </div>
+          <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-brand-primary border-2 border-background-elevated" />
+        </div>
+        <AnimatePresence>
           {!collapsed && (
-            <motion.span 
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: 1 }} 
-              exit={{ opacity: 0 }}
-              className="font-display font-bold text-lg whitespace-nowrap"
+            <motion.span
+              initial={{ opacity: 0, x: -8 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -8 }}
+              transition={{ duration: 0.2 }}
+              className="font-display font-bold text-base whitespace-nowrap text-text-primary"
             >
               StudyGenius <span className="text-brand-primary">AI</span>
             </motion.span>
           )}
-        </div>
+        </AnimatePresence>
       </div>
 
-      {/* Collapse Toggle (Floating Button) */}
-      <button 
+      {/* Collapse Toggle */}
+      <button
         onClick={() => setCollapsed(!collapsed)}
-        className="absolute -right-3 top-24 bg-background-soft border border-border-strong rounded-full p-1 text-text-muted hover:text-text-primary z-50 transition-colors"
+        className="absolute -right-3.5 top-[50px] w-7 h-7 rounded-full bg-background-soft border border-border-strong flex items-center justify-center text-text-muted hover:text-text-primary hover:bg-background-surface hover:border-brand-primary/30 transition-all z-50 shadow-layer-2"
       >
-        {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+        {collapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
       </button>
 
-      {/* Navigation Links */}
-      <div className="flex-1 overflow-y-auto py-6 px-3 flex flex-col gap-2 no-scrollbar">
-        {navItems.map((item) => {
+      {/* Nav Links */}
+      <div className="flex-1 overflow-y-auto py-5 px-2.5 flex flex-col gap-1 no-scrollbar">
+        {!collapsed && (
+          <p className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-widest text-text-muted">Navigation</p>
+        )}
+
+        {NAV_ITEMS.map((item) => {
           const isActive = currentView === item.id;
           return (
             <button
               key={item.id}
               onClick={() => setCurrentView(item.id)}
-              className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all group ${
-                isActive 
-                  ? 'bg-brand-primary/10 text-brand-primary font-medium border border-brand-primary/20' 
-                  : 'text-text-secondary hover:text-text-primary hover:bg-background-soft border border-transparent'
-              } ${collapsed ? 'justify-center' : ''}`}
               title={collapsed ? item.label : undefined}
+              className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group ${
+                collapsed ? 'justify-center' : ''
+              } ${
+                isActive
+                  ? 'bg-brand-primary/10 text-brand-primary'
+                  : 'text-text-muted hover:text-text-primary hover:bg-background-soft'
+              }`}
             >
-              <item.icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-brand-primary' : 'text-text-muted group-hover:text-text-primary'}`} />
-              {!collapsed && (
-                <span className="whitespace-nowrap">{item.label}</span>
+              {isActive && (
+                <motion.div
+                  layoutId="sidebar-active"
+                  className="absolute inset-0 rounded-xl bg-brand-primary/10 border border-brand-primary/20"
+                  transition={{ type: 'spring', stiffness: 350, damping: 35 }}
+                />
               )}
+              <item.icon className={`w-4.5 h-4.5 flex-shrink-0 relative z-10 transition-colors ${isActive ? 'text-brand-primary' : 'text-text-muted group-hover:text-text-primary'}`} style={{ width: 18, height: 18 }} />
+              <AnimatePresence>
+                {!collapsed && (
+                  <motion.span
+                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                    transition={{ duration: 0.15 }}
+                    className={`text-sm font-medium relative z-10 whitespace-nowrap ${isActive ? 'text-brand-primary' : ''}`}
+                  >
+                    {item.label}
+                  </motion.span>
+                )}
+              </AnimatePresence>
             </button>
           );
         })}
 
         {!collapsed && (
-          <div className="mt-6 mb-2 px-4 text-xs font-semibold text-text-muted uppercase tracking-wider">
-            Study Tools
-          </div>
+          <p className="px-3 mt-5 mb-2 text-[10px] font-semibold uppercase tracking-widest text-text-muted">Study Tools</p>
         )}
-        
-        <button
-          onClick={() => setCurrentView('summaries')}
-          className={`flex items-center gap-3 px-3 py-3 rounded-xl text-text-secondary hover:text-text-primary hover:bg-background-soft transition-colors border border-transparent group ${collapsed ? 'justify-center' : ''}`}
-          title={collapsed ? 'Summaries' : undefined}
-        >
-          <FileText className="w-5 h-5 flex-shrink-0 text-text-muted group-hover:text-text-primary" />
-          {!collapsed && <span>Summaries</span>}
-        </button>
+        {collapsed && <div className="my-3 mx-auto w-6 h-px bg-border" />}
+
+        {TOOL_ITEMS.map(item => (
+          <button
+            key={item.id}
+            onClick={() => setCurrentView(item.id)}
+            title={collapsed ? item.label : undefined}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-muted hover:text-text-primary hover:bg-background-soft transition-all group ${collapsed ? 'justify-center' : ''}`}
+          >
+            <item.icon style={{ width: 18, height: 18 }} className="flex-shrink-0 text-text-muted group-hover:text-text-primary transition-colors" />
+            <AnimatePresence>
+              {!collapsed && (
+                <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-sm font-medium whitespace-nowrap">
+                  {item.label}
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </button>
+        ))}
       </div>
 
-      {/* Footer / User Profile */}
-      <div className="p-4 border-t border-border/50 flex flex-col gap-2">
+      {/* Footer */}
+      <div className="p-3 border-t border-border/50 flex flex-col gap-1.5">
+        {/* Settings */}
         <button
-          type="button"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (onOpenSettings) {
-              onOpenSettings();
-            } else {
-              console.error("onOpenSettings is not defined in AppSidebar!");
-            }
-          }}
-          className={`flex items-center gap-3 px-2 py-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-background-soft transition-colors ${collapsed ? 'justify-center' : ''}`}
-          title={collapsed ? 'Profile' : undefined}
+          onClick={onOpenSettings}
+          title={collapsed ? 'Settings' : undefined}
+          className={`flex items-center gap-3 px-3 py-2 rounded-xl text-text-muted hover:text-text-primary hover:bg-background-soft transition-colors ${collapsed ? 'justify-center' : ''}`}
         >
-          <div className="w-8 h-8 rounded-full bg-background-soft border border-border-strong flex items-center justify-center flex-shrink-0">
-            <User className="w-4 h-4" />
-          </div>
-          {!collapsed && (
-            <div className="flex flex-col items-start overflow-hidden text-left">
-              <span className="text-sm font-medium truncate w-full">{displayName}</span>
-              <span className="text-xs text-brand-primary/70 truncate w-full">StudyGenius AI</span>
-            </div>
-          )}
+          <Settings style={{ width: 16, height: 16 }} className="flex-shrink-0" />
+          <AnimatePresence>
+            {!collapsed && <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-sm">Settings</motion.span>}
+          </AnimatePresence>
         </button>
-        
+
+        {/* User profile */}
+        <button
+          onClick={onOpenSettings}
+          title={collapsed ? displayName : undefined}
+          className={`flex items-center gap-3 p-2 rounded-xl hover:bg-background-soft transition-colors ${collapsed ? 'justify-center' : ''}`}
+        >
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-primary/30 to-brand-periwinkle/30 border border-brand-primary/20 flex items-center justify-center flex-shrink-0">
+            <span className="text-xs font-bold text-brand-primary">{displayName[0]?.toUpperCase()}</span>
+          </div>
+          <AnimatePresence>
+            {!collapsed && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-start overflow-hidden text-left">
+                <span className="text-xs font-semibold text-text-primary truncate max-w-[140px]">{displayName}</span>
+                <span className="text-[10px] text-brand-primary/70 truncate max-w-[140px]">StudyGenius AI</span>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </button>
+
+        {/* Sign out */}
         <button
           onClick={onSignOut}
-          className={`flex items-center gap-3 px-3 py-2 mt-1 rounded-lg text-feedback-error/80 hover:text-feedback-error hover:bg-feedback-error/10 transition-colors ${collapsed ? 'justify-center' : ''}`}
           title={collapsed ? 'Sign Out' : undefined}
+          className={`flex items-center gap-3 px-3 py-2 rounded-xl text-feedback-error/60 hover:text-feedback-error hover:bg-feedback-error/8 transition-colors ${collapsed ? 'justify-center' : ''}`}
         >
-          <LogOut className="w-5 h-5 flex-shrink-0" />
-          {!collapsed && <span className="text-sm font-medium">Sign Out</span>}
+          <LogOut style={{ width: 16, height: 16 }} className="flex-shrink-0" />
+          <AnimatePresence>
+            {!collapsed && <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-sm font-medium">Sign Out</motion.span>}
+          </AnimatePresence>
         </button>
       </div>
     </motion.aside>

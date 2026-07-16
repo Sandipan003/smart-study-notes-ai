@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Menu, X, ArrowRight } from 'lucide-react';
+import { Sparkles, Menu, X, ArrowRight, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function PublicNavbar({ onSignInClick }) {
@@ -7,49 +7,74 @@ export default function PublicNavbar({ onSignInClick }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
+    const handleScroll = () => setScrolled(window.scrollY > 30);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const links = [
+    { href: '#features', label: 'Features' },
+    { href: '#how-it-works', label: 'How It Works' },
+    { href: '#ai-tutor', label: 'AI Tutor' },
+  ];
+
   return (
     <>
-      <nav 
+      <motion.nav
+        initial={{ y: -80, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-          scrolled ? 'py-4 bg-background-elevated/80 backdrop-blur-md border-b border-border' : 'py-6 bg-transparent'
+          scrolled ? 'py-3' : 'py-5'
         }`}
       >
-        <div className="max-w-[1440px] mx-auto px-6 md:px-10 flex items-center justify-between">
-          
+        {/* Navbar background — only shows when scrolled */}
+        <div className={`absolute inset-0 transition-all duration-300 ${
+          scrolled ? 'bg-background-elevated/80 backdrop-blur-xl border-b border-border shadow-layer-2' : ''
+        }`} />
+
+        <div className="max-w-[1440px] mx-auto px-6 md:px-10 flex items-center justify-between relative z-10">
+
           {/* Logo */}
           <div className="flex items-center gap-3 cursor-pointer select-none group">
-            <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-background-soft border border-border-strong group-hover:border-brand-primary transition-colors overflow-hidden">
-              <div className="absolute inset-0 bg-grad-primary opacity-20 group-hover:opacity-40 transition-opacity"></div>
-              <Sparkles className="w-5 h-5 text-brand-primary relative z-10" />
+            <div className="relative w-9 h-9 rounded-xl bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center overflow-hidden group-hover:border-brand-primary/50 transition-colors">
+              <div className="absolute inset-0 bg-grad-primary opacity-10 group-hover:opacity-20 transition-opacity" />
+              <Sparkles className="w-4 h-4 text-brand-primary relative z-10" />
             </div>
-            <span className="text-xl font-display font-bold tracking-tight text-text-primary">
+            <span className="font-display font-bold text-lg tracking-tight">
               StudyGenius <span className="text-brand-primary">AI</span>
             </span>
           </div>
 
-          {/* Desktop Links */}
-          <div className="hidden md:flex items-center gap-8">
-            <a href="#features" className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors">Features</a>
-            <a href="#how-it-works" className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors">How It Works</a>
-            <a href="#ai-tutor" className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors">AI Tutor</a>
+          {/* Desktop Nav Links */}
+          <div className="hidden md:flex items-center gap-1">
+            {links.map(link => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="px-4 py-2 rounded-lg text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-white/5 transition-all"
+              >
+                {link.label}
+              </a>
+            ))}
           </div>
 
           {/* Desktop Actions */}
-          <div className="hidden md:flex items-center gap-4">
-            <button 
+          <div className="hidden md:flex items-center gap-3">
+            {/* Groq badge */}
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background-soft border border-border-strong text-xs font-semibold text-text-muted">
+              <Zap className="w-3 h-3 text-brand-primary fill-brand-primary" />
+              Groq powered
+            </div>
+            <button
               onClick={onSignInClick}
-              className="text-sm font-medium text-text-primary hover:text-brand-primary transition-colors"
+              className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors px-3 py-2"
             >
               Sign In
             </button>
-            <button 
+            <button
               onClick={onSignInClick}
-              className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-background rounded-full bg-brand-primary hover:bg-brand-primary/90 transition-all hover:scale-105 active:scale-95 shadow-glow-cyan"
+              className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-background-void rounded-xl bg-brand-primary hover:bg-brand-mint transition-all hover:-translate-y-0.5 active:translate-y-0 shadow-glow-cyan"
             >
               Get Started
               <ArrowRight className="w-4 h-4" />
@@ -57,42 +82,54 @@ export default function PublicNavbar({ onSignInClick }) {
           </div>
 
           {/* Mobile Menu Toggle */}
-          <button 
-            className="md:hidden flex items-center justify-center w-10 h-10 rounded-lg text-text-primary hover:bg-background-soft transition-colors"
+          <button
+            className="md:hidden w-9 h-9 rounded-lg flex items-center justify-center text-text-primary hover:bg-background-soft transition-colors"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
-      </nav>
+      </motion.nav>
 
-      {/* Mobile Menu Sheet */}
+      {/* Mobile Full-screen Menu */}
       <AnimatePresence>
         {mobileMenuOpen && (
-          <motion.div 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-0 z-40 bg-background-elevated/95 backdrop-blur-xl flex flex-col pt-24 px-6 pb-6 md:hidden"
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-40 bg-background-deep/95 backdrop-blur-2xl flex flex-col pt-24 px-6 pb-8 md:hidden"
           >
-            <div className="flex flex-col gap-6 text-lg font-display font-medium">
-              <a href="#features" onClick={() => setMobileMenuOpen(false)} className="py-3 border-b border-border">Features</a>
-              <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="py-3 border-b border-border">How It Works</a>
-              <a href="#ai-tutor" onClick={() => setMobileMenuOpen(false)} className="py-3 border-b border-border">AI Tutor</a>
+            <div className="flex flex-col gap-2">
+              {links.map((link, i) => (
+                <motion.a
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.07 }}
+                  className="flex items-center justify-between py-4 px-2 border-b border-border font-display font-semibold text-xl text-text-primary hover:text-brand-primary transition-colors"
+                >
+                  {link.label}
+                  <ArrowRight className="w-4 h-4 text-text-muted" />
+                </motion.a>
+              ))}
             </div>
-            
-            <div className="mt-auto flex flex-col gap-4">
-              <button 
+
+            <div className="mt-auto flex flex-col gap-3">
+              <button
                 onClick={() => { setMobileMenuOpen(false); onSignInClick(); }}
-                className="w-full py-4 rounded-xl border border-border-strong text-text-primary font-medium"
+                className="w-full py-4 rounded-xl border border-border-strong text-text-primary font-semibold text-base hover:bg-background-soft transition-colors"
               >
                 Sign In
               </button>
-              <button 
+              <button
                 onClick={() => { setMobileMenuOpen(false); onSignInClick(); }}
-                className="w-full py-4 rounded-xl bg-brand-primary text-background font-bold shadow-glow-cyan flex items-center justify-center gap-2"
+                className="w-full py-4 rounded-xl bg-brand-primary text-background-void font-bold text-base shadow-glow-cyan hover:bg-brand-mint transition-colors flex items-center justify-center gap-2"
               >
-                Get Started Free
+                Get Started Now
                 <ArrowRight className="w-5 h-5" />
               </button>
             </div>
