@@ -113,7 +113,7 @@ export default function AppSidebar({ user, supabase, onSignOut, currentView, set
           {!collapsed && (
             <div className="flex flex-col items-start overflow-hidden text-left">
               <span className="text-sm font-medium truncate w-full">{displayName}</span>
-              <span className="text-xs text-text-muted truncate w-full">Free Plan</span>
+              <span className="text-xs text-text-muted truncate w-full">{user?.email}</span>
             </div>
           )}
         </button>

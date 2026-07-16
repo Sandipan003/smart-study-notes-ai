@@ -12,9 +12,9 @@ export default function UnifiedWorkspace({ studyData, activeGuideId, session, on
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   const tabs = [
-    { id: 'summary', icon: FileText, label: 'Document Notes' },
-    { id: 'flashcards', icon: Layers, label: '3D Flashcards' },
-    { id: 'quiz', icon: HelpCircle, label: 'Active Quiz' },
+    { id: 'summary', icon: FileText, label: 'Notes' },
+    { id: 'flashcards', icon: Layers, label: 'Flashcards' },
+    { id: 'quiz', icon: HelpCircle, label: 'Quiz' },
   ];
 
   const toggleFullscreen = () => {
@@ -31,43 +31,49 @@ export default function UnifiedWorkspace({ studyData, activeGuideId, session, on
     <div className={`flex h-full w-full bg-background-void ${isFullscreen ? 'fixed inset-0 z-50 p-4 md:p-8' : 'animate-in fade-in zoom-in-95 duration-500'}`}>
       
       {/* MAIN WORKSPACE AREA */}
-      <div className={`flex flex-col flex-1 bg-background-surface border border-border-strong rounded-3xl overflow-hidden shadow-layer-2 relative transition-all ${isTutorOpen ? 'mr-4 rounded-r-none border-r-0' : ''}`}>
+      <div className={`flex flex-col flex-1 bg-background-surface border border-border-strong rounded-3xl overflow-hidden shadow-layer-2 relative transition-all ${isTutorOpen ? 'lg:mr-4 lg:rounded-r-none lg:border-r-0' : ''}`}>
         
         {/* Workspace Toolbar */}
-        <header className="flex items-center justify-between px-3 md:px-6 py-3 md:py-4 border-b border-border bg-background-elevated/50 backdrop-blur-md sticky top-0 z-20">
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar flex-1 min-w-0 pr-2">
+        <header className="flex items-center justify-between px-3 md:px-5 py-2.5 md:py-3 border-b border-border bg-background-elevated/60 backdrop-blur-md sticky top-0 z-20 gap-2">
+          
+          {/* Tabs */}
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar flex-1 min-w-0">
             {tabs.map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs md:text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
                   activeTab === tab.id
                     ? 'bg-brand-primary text-background-void shadow-glow-cyan'
                     : 'text-text-secondary hover:text-text-primary hover:bg-background-soft'
                 }`}
               >
-                <tab.icon className="w-4 h-4" />
-                {tab.label}
+                <tab.icon className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                <span>{tab.label}</span>
               </button>
             ))}
           </div>
 
-          <div className="flex items-center gap-1 md:gap-3 pl-3 md:pl-4 border-l border-border shrink-0">
+          {/* Right Actions */}
+          <div className="flex items-center gap-1 pl-2 border-l border-border shrink-0">
             <button
               onClick={() => setIsTutorOpen(!isTutorOpen)}
-              className={`flex items-center gap-2 p-2 md:px-3 md:py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                isTutorOpen ? 'bg-brand-periwinkle/20 text-brand-periwinkle border border-brand-periwinkle/30' : 'text-text-secondary hover:text-text-primary hover:bg-background-soft border border-transparent'
+              title="AI Tutor"
+              className={`flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-xs md:text-sm font-medium transition-all ${
+                isTutorOpen
+                  ? 'bg-brand-periwinkle/20 text-brand-periwinkle border border-brand-periwinkle/30'
+                  : 'text-text-secondary hover:text-text-primary hover:bg-background-soft border border-transparent'
               }`}
             >
-              <BrainCircuit className="w-5 h-5 md:w-4 md:h-4" />
-              <span className="hidden lg:inline">AI Tutor</span>
+              <BrainCircuit className="w-4 h-4" />
+              <span className="hidden sm:inline">AI Tutor</span>
             </button>
             <button
               onClick={toggleFullscreen}
-              className="p-2 md:p-2.5 rounded-xl text-text-secondary hover:text-text-primary hover:bg-background-soft transition-colors"
+              className="p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-background-soft transition-colors"
               title="Toggle Fullscreen"
             >
-              {isFullscreen ? <Minimize2 className="w-5 h-5 md:w-4 md:h-4" /> : <Maximize2 className="w-5 h-5 md:w-4 md:h-4" />}
+              {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
             </button>
           </div>
         </header>
@@ -84,8 +90,8 @@ export default function UnifiedWorkspace({ studyData, activeGuideId, session, on
               className="min-h-full"
             >
               {activeTab === 'summary' && (
-                <div className="max-w-4xl mx-auto py-8 px-6">
-                  <SummaryView 
+                <div className="max-w-4xl mx-auto py-6 md:py-8 px-4 md:px-6">
+                  <SummaryView
                     summary={studyData.summary}
                     guideId={activeGuideId}
                     settings={{}}
@@ -96,12 +102,12 @@ export default function UnifiedWorkspace({ studyData, activeGuideId, session, on
                 </div>
               )}
               {activeTab === 'flashcards' && (
-                <div className="h-full flex items-center justify-center p-6">
+                <div className="h-full flex items-center justify-center p-4 md:p-6">
                   <FlashcardsView flashcards={studyData.flashcards} />
                 </div>
               )}
               {activeTab === 'quiz' && (
-                <div className="max-w-3xl mx-auto py-8 px-6">
+                <div className="max-w-3xl mx-auto py-6 md:py-8 px-4 md:px-6">
                   <QuizView quiz={studyData.quiz} onResetApp={onReset} />
                 </div>
               )}
@@ -110,14 +116,15 @@ export default function UnifiedWorkspace({ studyData, activeGuideId, session, on
         </div>
       </div>
 
-      {/* TUTOR SIDE PANEL */}
+      {/* TUTOR SIDE PANEL — desktop + mobile modal handled inside TutorPanel */}
       <AnimatePresence>
         {isTutorOpen && (
-          <TutorPanel 
+          <TutorPanel
             summary={studyData.summary}
             guideId={activeGuideId}
             session={session}
             backendUrl=""
+            onClose={() => setIsTutorOpen(false)}
           />
         )}
       </AnimatePresence>
