@@ -34,8 +34,8 @@ export default function UnifiedWorkspace({ studyData, activeGuideId, session, on
       <div className={`flex flex-col flex-1 bg-background-surface border border-border-strong rounded-3xl overflow-hidden shadow-layer-2 relative transition-all ${isTutorOpen ? 'mr-4 rounded-r-none border-r-0' : ''}`}>
         
         {/* Workspace Toolbar */}
-        <header className="flex items-center justify-between px-6 py-4 border-b border-border bg-background-elevated/50 backdrop-blur-md sticky top-0 z-20">
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+        <header className="flex items-center justify-between px-3 md:px-6 py-3 md:py-4 border-b border-border bg-background-elevated/50 backdrop-blur-md sticky top-0 z-20">
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar flex-1 min-w-0 pr-2">
             {tabs.map(tab => (
               <button
                 key={tab.id}
@@ -52,7 +52,7 @@ export default function UnifiedWorkspace({ studyData, activeGuideId, session, on
             ))}
           </div>
 
-          <div className="flex items-center gap-3 pl-4 border-l border-border ml-2">
+          <div className="flex items-center gap-2 md:gap-3 pl-3 md:pl-4 border-l border-border shrink-0">
             <button
               onClick={() => setIsTutorOpen(!isTutorOpen)}
               className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
