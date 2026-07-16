@@ -5,8 +5,10 @@ import {
   BrainCircuit, FileText, Settings, User, LogOut, ChevronLeft, ChevronRight 
 } from 'lucide-react';
 
-export default function AppSidebar({ userEmail, onSignOut, currentView, setCurrentView }) {
+export default function AppSidebar({ user, supabase, onSignOut, currentView, setCurrentView, onOpenSettings }) {
   const [collapsed, setCollapsed] = useState(false);
+
+  const displayName = user?.user_metadata?.display_name || user?.email?.split('@')[0] || 'Student';
 
   const navItems = [
     { id: 'dashboard', icon: Home, label: 'Home' },
@@ -92,6 +94,16 @@ export default function AppSidebar({ userEmail, onSignOut, currentView, setCurre
       {/* Footer / User Profile */}
       <div className="p-4 border-t border-border/50 flex flex-col gap-2">
         <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (onOpenSettings) {
+              onOpenSettings();
+            } else {
+              console.error("onOpenSettings is not defined in AppSidebar!");
+            }
+          }}
           className={`flex items-center gap-3 px-2 py-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-background-soft transition-colors ${collapsed ? 'justify-center' : ''}`}
           title={collapsed ? 'Profile' : undefined}
         >
@@ -100,7 +112,7 @@ export default function AppSidebar({ userEmail, onSignOut, currentView, setCurre
           </div>
           {!collapsed && (
             <div className="flex flex-col items-start overflow-hidden text-left">
-              <span className="text-sm font-medium truncate w-full">{userEmail ? userEmail.split('@')[0] : 'Student'}</span>
+              <span className="text-sm font-medium truncate w-full">{displayName}</span>
               <span className="text-xs text-text-muted truncate w-full">Free Plan</span>
             </div>
           )}

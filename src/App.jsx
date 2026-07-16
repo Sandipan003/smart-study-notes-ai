@@ -17,6 +17,7 @@ import QuizView from './components/QuizView';
 import LibraryView from './components/library/LibraryView';
 
 import UnifiedWorkspace from './components/study/UnifiedWorkspace';
+import UserSettingsModal from './components/UserSettingsModal';
 
 const BACKEND_URL = '';
 const GROQ_API_KEY = '';
@@ -49,6 +50,7 @@ export default function App() {
   const [session, setSession]             = useState(null);
   const [authLoaded, setAuthLoaded]       = useState(false);
   const [showAuth, setShowAuth]           = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   // Initialize Supabase
   useEffect(() => {
@@ -238,10 +240,12 @@ export default function App() {
   return (
     <div className="flex h-screen w-full bg-background-void overflow-hidden text-text-primary font-sans">
       <AppSidebar 
-        userEmail={session.user.email} 
+        user={session.user}
+        supabase={supabase}
         onSignOut={handleSignOut} 
         currentView={currentView}
         setCurrentView={setCurrentView}
+        onOpenSettings={() => setIsSettingsOpen(true)}
       />
 
       <main className="flex-1 overflow-y-auto relative bg-background-void">
@@ -324,6 +328,12 @@ export default function App() {
         ))}
       </div>
 
+      <UserSettingsModal 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
+        user={session.user} 
+        supabase={supabase} 
+      />
     </div>
   );
 }
