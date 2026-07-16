@@ -317,7 +317,7 @@ export default function App() {
         </div>
       </main>
 
-      <MobileBottomNav currentView={currentView} setCurrentView={setCurrentView} />
+      <MobileBottomNav currentView={currentView} setCurrentView={setCurrentView} onProfileClick={() => setIsSettingsOpen(true)} />
 
       {/* Toast Notifications */}
       <div className="fixed bottom-24 md:bottom-8 right-4 md:right-8 z-50 flex flex-col gap-2 pointer-events-none">

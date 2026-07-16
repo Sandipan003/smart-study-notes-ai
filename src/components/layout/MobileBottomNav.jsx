@@ -7,10 +7,10 @@ const navItems = [
   { id: 'library',   icon: BookOpen,    label: 'Library'   },
   { id: 'new-study', icon: Layers,      label: 'New Study', primary: true },
   { id: 'tutor',     icon: BrainCircuit, label: 'Tutor'    },
-  { id: 'profile',   icon: User,        label: 'Profile'   },
+  { id: 'profile',   icon: User,        label: 'Profile', isModal: true },
 ];
 
-export default function MobileBottomNav({ currentView, setCurrentView }) {
+export default function MobileBottomNav({ currentView, setCurrentView, onProfileClick }) {
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 safe-area-inset-bottom">
       {/* Glass strip */}
@@ -46,10 +46,10 @@ export default function MobileBottomNav({ currentView, setCurrentView }) {
             return (
               <button
                 key={item.id}
-                onClick={() => setCurrentView(item.id)}
+                onClick={() => item.isModal ? onProfileClick?.() : setCurrentView(item.id)}
                 className="relative flex flex-col items-center gap-1 w-14 py-1 group"
               >
-                {isActive && (
+                {isActive && !item.isModal && (
                   <motion.div
                     layoutId="mobile-nav-bg"
                     className="absolute inset-0 rounded-xl bg-brand-primary/10"

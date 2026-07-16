@@ -91,17 +91,7 @@ export default function LandingPage({ onSignInClick }) {
                   <span className="text-xs text-text-muted mt-0.5">{s.label}</span>
                 </div>
               ))}
-              <div className="hidden sm:block w-px h-8 bg-border mx-2" />
-              <div className="flex items-center gap-2">
-                <div className="flex -space-x-2">
-                  {['#5EF5C0','#9FAEFF','#F5C76B'].map((c, i) => (
-                    <div key={i} className="w-7 h-7 rounded-full border-2 border-background-void flex items-center justify-center text-[9px] font-bold" style={{ background: c + '33', borderColor: '#060810', color: c }}>
-                      {['S','A','K'][i]}
-                    </div>
-                  ))}
-                </div>
-                <span className="text-xs text-text-muted">Loved by students</span>
-              </div>
+  
             </motion.div>
 
             {/* Supported formats */}

@@ -134,7 +134,7 @@ export default function FlashcardsView({ flashcards }) {
               animate={{ opacity: 1, scale: 1, x: 0 }}
               exit={{ opacity: 0, scale: 0.9, x: -40 }}
               transition={{ duration: 0.2 }}
-              className="w-full max-w-[600px] h-[360px] cursor-pointer group"
+              className="w-full max-w-[600px] h-[280px] sm:h-[360px] cursor-pointer group"
               onClick={() => setFlipped(!flipped)}
             >
               <div 
