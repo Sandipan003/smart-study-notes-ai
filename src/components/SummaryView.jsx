@@ -71,7 +71,7 @@ export default function SummaryView({ summary }) {
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
         <div>
           <h2 className="text-2xl font-display font-bold text-text-primary flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-brand-primary/10 flex items-center justify-center text-brand-primary">
@@ -82,7 +82,7 @@ export default function SummaryView({ summary }) {
           <p className="text-sm text-text-muted mt-1 ml-13">AI-structured summary of your uploaded material</p>
         </div>
         
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 mt-2 sm:mt-0">
           <button
             onClick={handleCopy}
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-background-soft border border-border-strong text-text-primary text-sm font-medium hover:bg-background-elevated hover:border-brand-primary/50 transition-colors shadow-layer-1"

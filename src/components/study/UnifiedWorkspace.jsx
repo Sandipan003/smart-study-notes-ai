@@ -52,22 +52,22 @@ export default function UnifiedWorkspace({ studyData, activeGuideId, session, on
             ))}
           </div>
 
-          <div className="flex items-center gap-2 md:gap-3 pl-3 md:pl-4 border-l border-border shrink-0">
+          <div className="flex items-center gap-1 md:gap-3 pl-3 md:pl-4 border-l border-border shrink-0">
             <button
               onClick={() => setIsTutorOpen(!isTutorOpen)}
-              className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                isTutorOpen ? 'bg-brand-periwinkle/20 text-brand-periwinkle border border-brand-periwinkle/30' : 'text-text-secondary hover:text-text-primary bg-background-soft border border-transparent'
+              className={`flex items-center gap-2 p-2 md:px-3 md:py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                isTutorOpen ? 'bg-brand-periwinkle/20 text-brand-periwinkle border border-brand-periwinkle/30' : 'text-text-secondary hover:text-text-primary hover:bg-background-soft border border-transparent'
               }`}
             >
-              <BrainCircuit className="w-4 h-4" />
+              <BrainCircuit className="w-5 h-5 md:w-4 md:h-4" />
               <span className="hidden lg:inline">AI Tutor</span>
             </button>
             <button
               onClick={toggleFullscreen}
-              className="p-2.5 rounded-xl text-text-secondary hover:text-text-primary hover:bg-background-soft transition-colors"
+              className="p-2 md:p-2.5 rounded-xl text-text-secondary hover:text-text-primary hover:bg-background-soft transition-colors"
               title="Toggle Fullscreen"
             >
-              {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+              {isFullscreen ? <Minimize2 className="w-5 h-5 md:w-4 md:h-4" /> : <Maximize2 className="w-5 h-5 md:w-4 md:h-4" />}
             </button>
           </div>
         </header>
