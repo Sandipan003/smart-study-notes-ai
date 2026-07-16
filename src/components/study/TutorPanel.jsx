@@ -1,15 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BrainCircuit, Send, Sparkles, X, Bot, User } from 'lucide-react';
-
-const PROMPTS = ['Summarize the key concepts', 'Explain the hardest part', 'Give me a memory trick'];
+import { BrainCircuit, Send, Sparkles, X, ChevronDown } from 'lucide-react';
 
 export default function TutorPanel({ summary, guideId, session, backendUrl = '', onClose }) {
   const [messages, setMessages] = useState([]);
   const [inputMsg, setInputMsg] = useState('');
   const [isReplying, setIsReplying] = useState(false);
   const messagesEndRef = useRef(null);
-  const textareaRef = useRef(null);
+  const inputRef = useRef(null);
 
   useEffect(() => {
     if (!guideId || !session) { setMessages([]); return; }
@@ -25,76 +23,85 @@ export default function TutorPanel({ summary, guideId, session, backendUrl = '',
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isReplying]);
 
-  const sendMessage = async (text = inputMsg.trim()) => {
-    if (!text || isReplying) return;
+  const sendMessage = async (text) => {
+    const msg = text || inputMsg.trim();
+    if (!msg || isReplying) return;
+
     setInputMsg('');
-    if (textareaRef.current) textareaRef.current.style.height = 'auto';
-    const next = [...messages, { role: 'user', content: text }];
+    const next = [...messages, { role: 'user', content: msg }];
     setMessages(next);
     setIsReplying(true);
 
     if (guideId && session) {
       fetch(`${backendUrl}/api/chat/save`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
-        body: JSON.stringify({ guide_id: guideId, role: 'user', content: text }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({ guide_id: guideId, role: 'user', content: msg }),
       }).catch(() => {});
     }
 
     try {
       const res = await fetch(`${backendUrl}/api/chat/ask`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
-        body: JSON.stringify({ message: text, history: messages, summary, engine: 'groq', apiKey: '', model: 'llama-3.3-70b-versatile', useFallback: false }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`
+        },
+        body: JSON.stringify({
+          message: msg,
+          history: messages,
+          summary,
+          engine: 'groq',
+          apiKey: '',
+          model: 'llama-3.3-70b-versatile',
+          useFallback: false,
+        }),
       });
+
       const data = await res.json();
       const reply = res.ok ? data.response : `Error: ${data.error || 'Failed to get response.'}`;
       setMessages(p => [...p, { role: 'assistant', content: reply }]);
+
       if (guideId && session) {
         fetch(`${backendUrl}/api/chat/save`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`
+          },
           body: JSON.stringify({ guide_id: guideId, role: 'assistant', content: reply }),
         }).catch(() => {});
       }
     } catch (e) {
-      setMessages(p => [...p, { role: 'assistant', content: 'Error: ' + e.message }]);
+      setMessages(p => [...p, { role: 'assistant', content: 'Connection error: ' + e.message }]);
     } finally {
       setIsReplying(false);
     }
   };
 
-  const handleKey = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-  };
+  const PROMPTS = ['Summarize the key concepts', 'Explain the hardest part', 'Give me a memory trick', 'Create a quick quiz'];
 
-  const autoResize = (e) => {
-    const el = e.target;
-    el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
-    setInputMsg(el.value);
-  };
-
-  const chatContent = (
-    <div className="flex flex-col h-full">
+  const ChatBody = () => (
+    <>
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 shrink-0" style={{ background: 'linear-gradient(135deg, rgba(155,143,255,0.15) 0%, rgba(98,246,197,0.08) 100%)' }}>
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #7B6FFF, #62F6C5)' }}>
-              <BrainCircuit className="w-4 h-4 text-white" />
-            </div>
-            <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-400 border-2 border-background-surface rounded-full" />
+      <div className="flex items-center gap-3 px-4 py-3 border-b border-white/10 bg-[#0e1117]/80 backdrop-blur-md shrink-0">
+        <div className="relative">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#62F6C5]/20 to-[#9FAEFF]/20 border border-[#62F6C5]/30 flex items-center justify-center">
+            <BrainCircuit className="w-4 h-4 text-[#62F6C5]" />
           </div>
-          <div>
-            <h3 className="text-sm font-semibold text-white leading-tight">AI Study Tutor</h3>
-            <p className="text-xs text-brand-primary/80 leading-tight">Powered by Llama 3</p>
-          </div>
+          <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-[#62F6C5] rounded-full border-2 border-[#0e1117] animate-pulse" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold text-white text-sm">AI Study Tutor</h3>
+          <p className="text-[10px] text-[#62F6C5]/80 truncate">Powered by Llama 3 · Groq</p>
         </div>
         {onClose && (
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-text-muted hover:text-text-primary hover:bg-white/10 transition-colors"
+            className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -102,52 +109,44 @@ export default function TutorPanel({ summary, guideId, session, backendUrl = '',
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3 no-scrollbar" style={{ background: 'linear-gradient(180deg, #0D0F14 0%, #11131A 100%)' }}>
+      <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3 no-scrollbar bg-[#0a0c10]">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center px-4 gap-4">
-            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-2" style={{ background: 'linear-gradient(135deg, rgba(123,111,255,0.2), rgba(98,246,197,0.1))', border: '1px solid rgba(98,246,197,0.2)' }}>
-              <Sparkles className="w-7 h-7 text-brand-primary" />
+            <div className="relative">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#62F6C5]/20 to-[#9FAEFF]/20 border border-[#62F6C5]/30 flex items-center justify-center">
+                <Sparkles className="w-7 h-7 text-[#62F6C5]" />
+              </div>
+              <div className="absolute inset-0 rounded-2xl bg-[#62F6C5]/10 blur-xl animate-pulse" />
             </div>
             <div>
-              <h4 className="text-base font-semibold text-text-primary mb-1">Ask your study tutor</h4>
-              <p className="text-xs text-text-muted leading-relaxed">Questions grounded in your uploaded notes — no hallucinations.</p>
+              <h4 className="font-semibold text-white mb-1">Ask me anything</h4>
+              <p className="text-xs text-white/40 leading-relaxed">I understand your uploaded material and can explain any concept from it.</p>
             </div>
-            <div className="flex flex-col gap-2 w-full mt-2">
-              {PROMPTS.map(p => (
+            <div className="grid grid-cols-2 gap-2 w-full mt-2">
+              {PROMPTS.map(prompt => (
                 <button
-                  key={p}
-                  onClick={() => sendMessage(p)}
-                  className="px-4 py-2.5 rounded-xl text-xs font-medium text-left transition-all hover:-translate-y-0.5"
-                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#A0A8B8' }}
+                  key={prompt}
+                  onClick={() => sendMessage(prompt)}
+                  className="px-3 py-2.5 rounded-xl border border-white/10 bg-white/5 text-xs font-medium text-white/60 hover:text-[#62F6C5] hover:border-[#62F6C5]/30 hover:bg-[#62F6C5]/5 transition-all text-left leading-snug"
                 >
-                  💡 {p}
+                  {prompt}
                 </button>
               ))}
             </div>
           </div>
         ) : (
           messages.map((m, i) => (
-            <div key={i} className={`flex gap-2.5 ${m.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-              {/* Avatar */}
-              <div className="shrink-0 mt-0.5">
-                {m.role === 'assistant' ? (
-                  <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #7B6FFF, #62F6C5)' }}>
-                    <Bot className="w-3.5 h-3.5 text-white" />
-                  </div>
-                ) : (
-                  <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'rgba(98,246,197,0.15)', border: '1px solid rgba(98,246,197,0.3)' }}>
-                    <User className="w-3.5 h-3.5 text-brand-primary" />
-                  </div>
-                )}
-              </div>
-              {/* Bubble */}
-              <div
-                className="max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed"
-                style={m.role === 'user'
-                  ? { background: 'linear-gradient(135deg, #62F6C5, #4EDBB0)', color: '#0D1117', borderBottomRightRadius: '4px' }
-                  : { background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#D4D8E8', borderBottomLeftRadius: '4px' }
-                }
-              >
+            <div key={i} className={`flex gap-2.5 ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
+              {m.role === 'assistant' && (
+                <div className="w-7 h-7 shrink-0 rounded-lg bg-gradient-to-br from-[#62F6C5]/20 to-[#9FAEFF]/20 border border-[#62F6C5]/30 flex items-center justify-center mt-1">
+                  <BrainCircuit className="w-3.5 h-3.5 text-[#62F6C5]" />
+                </div>
+              )}
+              <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm ${
+                m.role === 'user'
+                  ? 'bg-gradient-to-br from-[#62F6C5] to-[#9FAEFF] text-[#0a0c10] font-medium rounded-tr-sm'
+                  : 'bg-[#1a1d26] border border-white/10 text-white/90 rounded-tl-sm'
+              }`}>
                 {m.content}
               </div>
             </div>
@@ -155,14 +154,14 @@ export default function TutorPanel({ summary, guideId, session, backendUrl = '',
         )}
 
         {isReplying && (
-          <div className="flex gap-2.5 flex-row">
-            <div className="w-7 h-7 rounded-lg shrink-0 flex items-center justify-center mt-0.5" style={{ background: 'linear-gradient(135deg, #7B6FFF, #62F6C5)' }}>
-              <Bot className="w-3.5 h-3.5 text-white" />
+          <div className="flex gap-2.5">
+            <div className="w-7 h-7 shrink-0 rounded-lg bg-gradient-to-br from-[#62F6C5]/20 to-[#9FAEFF]/20 border border-[#62F6C5]/30 flex items-center justify-center mt-1">
+              <BrainCircuit className="w-3.5 h-3.5 text-[#62F6C5]" />
             </div>
-            <div className="rounded-2xl rounded-bl-[4px] px-4 py-3 flex items-center gap-1" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
-              <span className="w-2 h-2 rounded-full bg-brand-primary animate-bounce" style={{ animationDelay: '0ms' }} />
-              <span className="w-2 h-2 rounded-full bg-brand-primary animate-bounce" style={{ animationDelay: '150ms' }} />
-              <span className="w-2 h-2 rounded-full bg-brand-primary animate-bounce" style={{ animationDelay: '300ms' }} />
+            <div className="bg-[#1a1d26] border border-white/10 rounded-2xl rounded-tl-sm px-4 py-3 flex items-center gap-1.5">
+              {[0, 0.15, 0.3].map((delay, i) => (
+                <div key={i} className="w-2 h-2 bg-[#62F6C5] rounded-full animate-bounce" style={{ animationDelay: `${delay}s` }} />
+              ))}
             </div>
           </div>
         )}
@@ -170,59 +169,69 @@ export default function TutorPanel({ summary, guideId, session, backendUrl = '',
       </div>
 
       {/* Input */}
-      <div className="px-3 py-3 border-t border-white/10 shrink-0" style={{ background: '#11131A' }}>
-        <div className="flex items-end gap-2 rounded-2xl p-1.5" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)' }}>
+      <div className="p-3 border-t border-white/10 bg-[#0e1117]/80 backdrop-blur-md shrink-0">
+        <form
+          onSubmit={e => { e.preventDefault(); sendMessage(); }}
+          className="flex items-end gap-2 bg-[#1a1d26] border border-white/10 rounded-2xl p-2 focus-within:border-[#62F6C5]/40 transition-colors"
+        >
           <textarea
-            ref={textareaRef}
+            ref={inputRef}
             value={inputMsg}
-            onChange={autoResize}
-            onKeyDown={handleKey}
+            onChange={e => setInputMsg(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+              }
+            }}
             rows={1}
-            className="flex-1 bg-transparent py-2 px-3 text-sm text-text-primary placeholder-text-muted resize-none focus:outline-none no-scrollbar"
-            placeholder="Ask a question about these notes…"
+            className="flex-1 bg-transparent text-sm text-white placeholder-white/30 focus:outline-none resize-none no-scrollbar py-1 px-1 max-h-28"
+            placeholder="Ask about your study material..."
             disabled={isReplying}
-            style={{ minHeight: '38px', maxHeight: '120px' }}
+            style={{ lineHeight: '1.5' }}
           />
           <button
-            onClick={() => sendMessage()}
+            type="submit"
             disabled={isReplying || !inputMsg.trim()}
-            className="w-9 h-9 rounded-xl shrink-0 flex items-center justify-center transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
-            style={{ background: 'linear-gradient(135deg, #7B6FFF, #62F6C5)' }}
+            className="flex-shrink-0 w-8 h-8 rounded-xl bg-gradient-to-br from-[#62F6C5] to-[#9FAEFF] text-[#0a0c10] flex items-center justify-center hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            <Send className="w-4 h-4 text-white" />
+            <Send className="w-3.5 h-3.5" />
           </button>
-        </div>
-        <p className="text-center text-xs text-text-muted mt-2 opacity-50">Press Enter to send · Shift+Enter for new line</p>
+        </form>
+        <p className="text-center text-[10px] text-white/20 mt-1.5">Press Enter to send · Shift+Enter for new line</p>
       </div>
-    </div>
+    </>
   );
 
   return (
     <>
-      {/* Desktop slide-in panel */}
+      {/* DESKTOP: Fixed side panel */}
       <motion.aside
         initial={{ width: 0, opacity: 0, x: 20 }}
-        animate={{ width: 370, opacity: 1, x: 0 }}
+        animate={{ width: 380, opacity: 1, x: 0 }}
         exit={{ width: 0, opacity: 0, x: 20 }}
-        transition={{ type: 'spring', damping: 28, stiffness: 250 }}
-        className="hidden lg:flex flex-col h-full border border-border-strong border-l-0 rounded-r-3xl overflow-hidden shadow-layer-3 z-10 flex-shrink-0"
-        style={{ background: '#0D0F14' }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        className="hidden lg:flex flex-col h-full bg-[#0e1117] border border-white/10 border-l-0 rounded-r-3xl overflow-hidden shadow-[0_0_60px_rgba(98,246,197,0.06)] z-10"
       >
-        {chatContent}
+        <ChatBody />
       </motion.aside>
 
-      {/* Mobile fullscreen modal */}
+      {/* MOBILE: Full-screen bottom sheet overlay */}
       <AnimatePresence>
         <motion.div
           key="mobile-tutor"
-          initial={{ y: '100%' }}
-          animate={{ y: 0 }}
-          exit={{ y: '100%' }}
-          transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-          className="lg:hidden fixed inset-0 z-50 flex flex-col"
-          style={{ background: '#0D0F14' }}
+          initial={{ opacity: 0, y: '100%' }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: '100%' }}
+          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+          className="lg:hidden fixed inset-0 z-50 flex flex-col bg-[#0a0c10]"
+          style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
         >
-          {chatContent}
+          {/* Drag handle */}
+          <div className="flex justify-center pt-3 pb-1 shrink-0">
+            <div className="w-10 h-1 rounded-full bg-white/20" />
+          </div>
+          <ChatBody />
         </motion.div>
       </AnimatePresence>
     </>

@@ -57,7 +57,7 @@ export default function LandingPage({ onSignInClick }) {
               onClick={onSignInClick}
               className="w-full sm:w-auto px-8 py-4 rounded-xl bg-brand-primary text-background-void font-bold shadow-glow-cyan hover:bg-brand-mint transition-all hover:-translate-y-1 active:translate-y-0 text-lg flex items-center justify-center gap-2"
             >
-              Start Studying Free
+              Start Studying Now
               <ArrowRight className="w-5 h-5" />
             </button>
             <button 
