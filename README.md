@@ -3,10 +3,10 @@
 <div align="center">
 
 ![StudyGenius AI Banner](https://img.shields.io/badge/StudyGenius%20AI-Smart%20Study%20Notes-6366f1?style=for-the-badge&logo=sparkles&logoColor=white)
-![Powered by Gemini](https://img.shields.io/badge/Powered%20by-Google%20Gemini%202.0-00f5d4?style=for-the-badge&logo=google&logoColor=white)
+![Powered by Groq](https://img.shields.io/badge/Powered%20by-Groq%20(Llama%203.3)-f55036?style=for-the-badge&logo=groq&logoColor=white)
 ![React](https://img.shields.io/badge/React%2018-Frontend-61dafb?style=for-the-badge&logo=react&logoColor=black)
 ![Flask](https://img.shields.io/badge/Flask-Backend-ec4899?style=for-the-badge&logo=flask&logoColor=white)
-![Supabase](https://img.shields.io/badge/Supabase-Database-3ecf8e?style=for-the-badge&logo=supabase&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-Database%20&%20Auth-3ecf8e?style=for-the-badge&logo=supabase&logoColor=white)
 ![Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
 
 **Transform your PDFs and lecture notes into AI-powered summaries, interactive 3D flashcards, and gamified quizzes — instantly.**
@@ -19,41 +19,35 @@
 
 ## 📸 Preview
 
-| Hero Landing | Upload Zone | Flashcards |
+| Hero Landing | Unified Workspace | 3D Flashcards |
 |:---:|:---:|:---:|
-| Animated cosmic hero with feature cards | 3D drag-and-drop upload zone | Real 3D flip cards with mastery tracking |
+| Animated 3D Knowledge Core & Auth | Continuous study space with side AI Tutor | Real 3D flip cards with swipe gestures |
 
 ---
 
 ## ✨ Features
 
-### 🤖 AI-Powered Generation
-- **Smart Summary** — Extracts and structures key concepts, formulas, and definitions into clean markdown
-- **Interactive Flashcards** — AI generates 5–10 high-quality concept/explanation card pairs
-- **Multiple-Choice Quiz** — AI creates 5–8 MCQ questions with detailed explanations per answer
+### 🤖 AI-Powered Generation (Powered by Groq & Llama 3)
+- **Lightning Fast** — Uses Groq LPUs for near-instant response times to resolve traditional AI rate limits.
+- **Smart Summary** — Extracts and structures key concepts, formulas, and definitions into clean markdown.
+- **Interactive Flashcards** — AI generates high-quality concept/explanation card pairs.
+- **Multiple-Choice Quiz** — AI creates MCQ questions with detailed explanations per answer.
 
 ### 🎨 3D Modern UI
-- **Cosmic dark theme** with animated floating orbs and CSS grid overlay
-- **Glassmorphism 2.0** — multi-layer blur, rainbow gradient borders
-- **Real 3D flashcard flip** — CSS `perspective` + `rotateY` + `backface-visibility`
-- **Animated SVG score ring** with confetti burst on high quiz scores
-- **Space Grotesk + Inter** premium typography from Google Fonts
+- **React Three Fiber** interactive Knowledge Core on the landing page.
+- **Glassmorphism 2.0** with deep space dark theme and neon accents.
+- **Real 3D flashcard flip** with depth and spatial animations powered by Framer Motion.
+- **Unified Workspace** — Seamless layout containing notes, flashcards, quiz, and AI Tutor without page refreshes.
+- **Tailwind CSS v4** — Ultra-fast styling engine for fluid layouts.
 
-### 📱 Mobile-First Responsive
-- Fully fluid layouts from 375px → 1440px+
-- Touch-friendly card navigation
-- Collapsible history drawer with overlay
-- Responsive tabs and upload zones
-
-### 🗄️ Supabase Database Sync
-- Auto-saves generated study guides to Supabase
-- Browse and reload past study sessions from history drawer
-- AI Tutor conversation history persisted per guide
+### 🔐 Supabase Authentication & RLS
+- **User Accounts** — Dedicated sign up and sign in flow with email verification.
+- **Row-Level Security (RLS)** — Complete data privacy so you only see your own study guides and chat history.
+- **Library & Sync** — Auto-saves generated study guides to your personal Supabase library for future reviewing.
 
 ### 🧑‍🏫 AI Tutor Chat
-- Context-aware chatbot grounded in your uploaded notes
-- Suggested question prompts for quick interaction
-- Typing indicator with animated dots
+- Context-aware chatbot pinned to your workspace, grounded in your uploaded notes.
+- Instant explanations for difficult concepts using Groq's high-speed Llama 3 API.
 
 ---
 
@@ -61,15 +55,14 @@
 
 | Layer | Technology |
 |-------|------------|
-| **Frontend** | React 18, Vite 5, Vanilla CSS |
+| **Frontend** | React 18, Vite 5, Tailwind CSS v4, Framer Motion |
+| **3D Rendering** | Three.js, React Three Fiber, Drei |
 | **Backend** | Python, Flask, Flask-CORS |
-| **AI Engine** | Google Gemini 2.0 Flash API |
+| **AI Engine** | Groq API (Llama-3.3-70b-versatile) |
 | **PDF Extraction** | PyMuPDF (fitz), pypdf |
-| **OCR Fallback** | Gemini Vision API (for scanned PDFs) |
-| **Database** | Supabase (PostgreSQL via REST API) |
+| **Database & Auth** | Supabase (PostgreSQL via REST API & Auth API) |
 | **Deployment** | Vercel (frontend + backend) |
-| **Icons** | Lucide React |
-| **Fonts** | Google Fonts — Space Grotesk, Inter, Outfit |
+| **Icons & Fonts** | Lucide React, Google Fonts (Space Grotesk, Inter) |
 
 ---
 
@@ -80,25 +73,26 @@ smart-study-notes-ai/
 │
 ├── 📁 src/                          # React frontend
 │   ├── 📁 components/
-│   │   ├── UploadArea.jsx           # 3D drag-and-drop upload zone
-│   │   ├── SummaryView.jsx          # Markdown summary + AI Tutor chat
-│   │   ├── FlashcardsView.jsx       # 3D flip card deck with mastery tracking
-│   │   ├── QuizView.jsx             # Gamified MCQ quiz + animated results
-│   │   └── SettingsPanel.jsx        # (Deprecated — key is hardcoded)
-│   ├── App.jsx                      # Main app shell, routing, state
-│   ├── index.css                    # Full 3D design system & tokens
+│   │   ├── 📁 landing/              # LandingPage, AuthView
+│   │   ├── 📁 study/                # UnifiedWorkspace, TutorPanel
+│   │   ├── 📁 three/                # KnowledgeCore3D (React Three Fiber)
+│   │   ├── UploadArea.jsx           # File upload component
+│   │   ├── SummaryView.jsx          # Markdown summary interface
+│   │   ├── FlashcardsView.jsx       # 3D flip card deck
+│   │   └── QuizView.jsx             # MCQ quiz with results
+│   ├── App.jsx                      # Main app shell, routing, auth state
+│   ├── index.css                    # Tailwind v4 theme and styling
 │   └── main.jsx                     # React entry point
 │
 ├── 📁 backend/
-│   ├── app.py                       # Flask API — generate, save, chat routes
+│   ├── app.py                       # Flask API routes
 │   ├── requirements.txt             # Python dependencies
 │   ├── vercel.json                  # Backend Vercel deployment config
 │   └── .env                         # API keys (not committed)
 │
-├── index.html                       # SEO-optimized HTML entry
-├── vite.config.js                   # Vite 5 configuration
-├── package.json                     # Frontend dependencies
-└── vercel.json                      # Frontend Vercel SPA routing
+├── index.html                       # Entry HTML
+├── vite.config.js                   # Vite configuration
+└── package.json                     # Frontend dependencies
 ```
 
 ---
@@ -106,10 +100,10 @@ smart-study-notes-ai/
 ## 🚀 Getting Started
 
 ### Prerequisites
-- **Node.js** v18+ (v20 recommended)
+- **Node.js** v18+ 
 - **Python** 3.9+
-- **Google Gemini API Key** — [Get one free here](https://aistudio.google.com/app/apikey)
-- **Supabase Project** (optional, for history sync) — [supabase.com](https://supabase.com)
+- **Groq API Key** — [Get one free here](https://console.groq.com/keys)
+- **Supabase Project** — [supabase.com](https://supabase.com)
 
 ---
 
@@ -143,18 +137,11 @@ cd backend
 # Create virtual environment
 python -m venv venv
 
-# Activate it
-# Windows:
+# Activate it (Windows)
 venv\Scripts\activate
-# macOS/Linux:
-source venv/bin/activate
 
 # Install Python dependencies
 pip install -r requirements.txt
-
-# Configure environment variables
-cp .env.example .env
-# Edit .env and add your keys (see Configuration section)
 
 # Start Flask server
 python app.py
@@ -168,27 +155,25 @@ python app.py
 Create `backend/.env` with these values:
 
 ```env
-# Google Gemini API Key (required)
-# Get yours free at: https://aistudio.google.com/app/apikey
-GEMINI_API_KEY=your_gemini_api_key_here
+# Groq API Key (required for generation & AI Tutor)
+GROQ_API_KEY=gsk_your_groq_api_key_here
 
-# Supabase (optional — for history sync)
+# Supabase (required for Auth and History sync)
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_KEY=your_supabase_anon_key
 ```
 
-> **Note:** A default API key is hardcoded in the app for demo purposes. For production, always use your own key.
-
 ---
 
-### 5️⃣ Supabase Database Setup (Optional)
+### 5️⃣ Supabase Database Setup
 
-If you want history sync, run this SQL in your Supabase SQL Editor:
+Run this SQL in your Supabase SQL Editor to configure the tables, user relationships, and Row-Level Security (RLS):
 
 ```sql
 -- Study guides table
 CREATE TABLE study_guides (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID DEFAULT auth.uid() REFERENCES auth.users(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
   summary TEXT,
   flashcards JSONB DEFAULT '[]',
@@ -199,132 +184,63 @@ CREATE TABLE study_guides (
 -- Chat history table
 CREATE TABLE chat_history (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID DEFAULT auth.uid() REFERENCES auth.users(id) ON DELETE CASCADE,
   guide_id UUID REFERENCES study_guides(id) ON DELETE CASCADE,
   role TEXT NOT NULL CHECK (role IN ('user', 'assistant')),
   content TEXT NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Enable Row Level Security (optional, for production)
+-- Enable Row Level Security
 ALTER TABLE study_guides ENABLE ROW LEVEL SECURITY;
 ALTER TABLE chat_history ENABLE ROW LEVEL SECURITY;
+
+-- Create RLS Policies to isolate data per user
+CREATE POLICY "Allow users to read their own study guides" ON study_guides
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Allow users to insert their own study guides" ON study_guides
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Allow users to update their own study guides" ON study_guides
+  FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Allow users to delete their own study guides" ON study_guides
+  FOR DELETE USING (auth.uid() = user_id);
+
+CREATE POLICY "Allow users to access their own chat history" ON chat_history
+  FOR ALL USING (
+    EXISTS (
+      SELECT 1 FROM study_guides 
+      WHERE study_guides.id = chat_history.guide_id 
+      AND study_guides.user_id = auth.uid()
+    )
+  );
 ```
 
 ---
 
 ## 🌐 Deployment on Vercel
 
-### Frontend
-
-1. Push code to GitHub
-2. Import repo at [vercel.com/new](https://vercel.com/new)
-3. Set **Framework Preset** → Vite
-4. Set **Build Command** → `npm run build`
-5. Set **Output Directory** → `dist`
-6. Add environment variable:
-   - `VITE_BACKEND_URL` = your backend Vercel URL
-
-### Backend (Serverless Python)
-
-1. In Vercel dashboard → **Add New Project** → import same repo
-2. Set **Root Directory** → `backend`
-3. Add environment variables:
-   - `GEMINI_API_KEY` = your Gemini API key
-   - `SUPABASE_URL` = your Supabase URL
-   - `SUPABASE_KEY` = your Supabase key
-
-> The `backend/vercel.json` handles routing all requests to `app.py` automatically.
-
----
-
-## 📡 API Reference
-
-### `GET /api/health`
-Returns server status and configuration flags.
-
-```json
-{
-  "status": "healthy",
-  "engine_env_configured": true,
-  "supabase_configured": true
-}
-```
-
----
-
-### `POST /api/generate`
-Upload a PDF file to extract text and generate study material.
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `file` | `File` | PDF file (max 15MB) |
-| `engine` | `string` | `"gemini"` |
-| `apiKey` | `string` | Gemini API key |
-| `model` | `string` | e.g. `"gemini-2.0-flash"` |
-
-**Response:**
-```json
-{
-  "summary": "# Markdown formatted summary...",
-  "flashcards": [
-    { "front": "Term", "back": "Definition" }
-  ],
-  "quiz": [
-    {
-      "question": "Question text",
-      "options": ["A", "B", "C", "D"],
-      "answer": "Correct option",
-      "explanation": "Why this is correct..."
-    }
-  ]
-}
-```
-
----
-
-### `POST /api/text-generate`
-Generate study material from plain text input.
-
-```json
-{
-  "text": "Your study notes here...",
-  "engine": "gemini",
-  "apiKey": "your_key",
-  "model": "gemini-2.0-flash"
-}
-```
-
----
-
-### `POST /api/chat/ask`
-Ask the AI Tutor a question about your study material.
-
-```json
-{
-  "message": "What is photosynthesis?",
-  "history": [],
-  "summary": "Context from the generated summary...",
-  "engine": "gemini",
-  "apiKey": "your_key",
-  "model": "gemini-2.0-flash"
-}
-```
-
----
-
-### `POST /api/save-guide` · `GET /api/list-guides` · `GET /api/get-guide/:id`
-Supabase CRUD endpoints for saving and retrieving study sessions.
+1. Import the repository at [vercel.com/new](https://vercel.com/new)
+2. Vercel automatically detects the single-repo configuration (frontend Vite app + backend serverless functions via `vercel.json` routing).
+3. Add the following Environment Variables in Vercel Settings:
+   - `GROQ_API_KEY` = your Groq API key
+   - `VITE_SUPABASE_URL` = your Supabase URL
+   - `VITE_SUPABASE_ANON_KEY` = your Supabase anon key
+   - `SUPABASE_URL` = your Supabase URL (backend)
+   - `SUPABASE_KEY` = your Supabase anon key (backend)
+4. Deploy!
 
 ---
 
 ## 🎯 GenAI Role in This Project
 
-This project demonstrates **structured output generation** — not just conversational AI:
+This project demonstrates **structured output generation** via Llama 3 models:
 
-- The Gemini model receives raw study text and returns a **strict JSON schema** containing `summary`, `flashcards[]`, and `quiz[]`
-- The backend validates required keys and sanitizes the JSON output
-- **Gemini Vision API** is used as a fallback OCR engine for scanned/image PDFs
-- The AI Tutor uses **system instructions** + conversation history for contextual tutoring
+- The Groq API receives raw text extraction from PDFs and returns a **strict JSON schema** containing `summary`, `flashcards[]`, and `quiz[]`.
+- The backend validates required keys and routes the output securely to the Supabase authenticated session.
+- The AI Tutor uses system instructions and contextual memory to help users master their uploaded concepts without hallucinating unrelated topics.
 
 ---
 
@@ -360,17 +276,6 @@ This project demonstrates **structured output generation** — not just conversa
 ## 📄 License
 
 This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙏 Acknowledgements
-
-- [Google Gemini API](https://ai.google.dev/) — AI generation engine
-- [Supabase](https://supabase.com/) — Open source database backend
-- [Vercel](https://vercel.com/) — Seamless deployment platform
-- [PyMuPDF](https://pymupdf.readthedocs.io/) — Fast PDF text extraction
-- [Lucide React](https://lucide.dev/) — Beautiful icon library
-- [Space Grotesk Font](https://fonts.google.com/specimen/Space+Grotesk) — Premium typography
 
 ---
 
