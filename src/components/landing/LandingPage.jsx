@@ -132,8 +132,31 @@ export default function LandingPage({ onSignInClick }) {
             </h2>
           </div>
 
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 relative">
-            <div className="hidden md:block absolute top-10 left-0 w-full h-px bg-gradient-to-r from-transparent via-border-strong to-transparent" />
+          {/* Mobile: horizontal scroll strip */}
+          <div className="flex md:hidden overflow-x-auto no-scrollbar gap-3 pb-2 -mx-6 px-6 snap-x snap-mandatory">
+            {[
+              { icon: UploadCloud, title: 'Upload', desc: 'Any document', color: '#5EF5C0', num: '01' },
+              { icon: BrainCircuit, title: 'AI Analysis', desc: 'Deep understanding', color: '#9FAEFF', num: '02' },
+              { icon: FileText, title: 'Smart Notes', desc: 'Structured summaries', color: '#5EF5C0', num: '03' },
+              { icon: Combine, title: 'Active Recall', desc: 'Flashcards & Quizzes', color: '#F5C76B', num: '04' },
+              { icon: Lightbulb, title: 'Mastery', desc: 'Ace every exam', color: '#9FAEFF', num: '05' },
+            ].map((step, i) => (
+              <div key={i} className="snap-center flex-shrink-0 w-40 flex flex-col items-center gap-3 p-4 rounded-2xl bg-background-surface border border-border-strong">
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: step.color + '15', boxShadow: `0 0 20px ${step.color}20` }}>
+                  <step.icon className="w-6 h-6" style={{ color: step.color }} />
+                </div>
+                <div className="text-center">
+                  <span className="text-[10px] font-bold text-text-muted">{step.num}</span>
+                  <p className="font-semibold text-sm text-text-primary">{step.title}</p>
+                  <p className="text-[11px] text-text-muted mt-0.5">{step.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop: horizontal justified row */}
+          <div className="hidden md:flex items-center justify-between gap-4 relative">
+            <div className="absolute top-10 left-0 w-full h-px bg-gradient-to-r from-transparent via-border-strong to-transparent" />
             {[
               { icon: UploadCloud, title: 'Upload', desc: 'Any document type', color: '#5EF5C0' },
               { icon: BrainCircuit, title: 'AI Analysis', desc: 'Deep contextual understanding', color: '#9FAEFF' },
@@ -147,16 +170,16 @@ export default function LandingPage({ onSignInClick }) {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.12, duration: 0.5 }}
-                className="relative z-10 flex flex-col items-center gap-3 px-4"
+                className="relative z-10 flex flex-col items-center gap-3 px-4 bg-background-deep"
               >
                 <div className="w-20 h-20 rounded-2xl bg-background-surface border border-border-strong flex items-center justify-center shadow-layer-2 hover:scale-105 transition-transform" style={{ boxShadow: `0 0 30px ${step.color}15` }}>
                   <step.icon className="w-8 h-8" style={{ color: step.color }} />
                 </div>
                 <div className="text-center">
                   <p className="font-semibold text-sm text-text-primary">{step.title}</p>
-                  <p className="text-xs text-text-muted mt-0.5 hidden md:block">{step.desc}</p>
+                  <p className="text-xs text-text-muted mt-0.5">{step.desc}</p>
                 </div>
-                {i < 4 && <div className="hidden md:flex absolute -right-3 top-10 text-text-muted text-lg">›</div>}
+                {i < 4 && <div className="absolute -right-5 top-9 text-text-muted text-2xl font-thin">›</div>}
               </motion.div>
             ))}
           </div>
@@ -264,7 +287,7 @@ export default function LandingPage({ onSignInClick }) {
               <Sparkles className="w-3.5 h-3.5 text-brand-primary" />
             </div>
             <span className="font-semibold text-text-primary">StudyGenius AI</span>
-            <span className="text-text-muted">© 2026 · BCT Final Project</span>
+            <span className="text-text-muted">© 2026 · Made by <span className="text-brand-primary font-semibold">Sandipan Sarkar</span> &amp; <span className="text-brand-periwinkle font-semibold">Sayani Das</span></span>
           </div>
           <div className="flex gap-6 font-medium">
             {['Privacy', 'Terms', 'Support'].map(l => (
