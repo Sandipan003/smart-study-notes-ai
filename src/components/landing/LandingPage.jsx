@@ -159,13 +159,16 @@ export default function LandingPage({ onSignInClick }) {
           
           {/* Smart Summaries (Large span) */}
           <div className="md:col-span-2 lg:col-span-2 bg-background-surface border border-border-strong rounded-3xl p-8 relative overflow-hidden group hover:border-border-active transition-colors shadow-layer-2">
-            <div className="absolute top-0 right-0 w-[60%] h-full bg-gradient-to-l from-brand-primary/5 to-transparent pointer-events-none"></div>
-            <ScanText className="w-10 h-10 text-brand-primary mb-6" />
-            <h3 className="text-2xl font-display font-bold mb-3">Smart Summaries</h3>
-            <p className="text-text-secondary max-w-sm">We don't just extract text. StudyGenius AI reconstructs your material into a readable, beautifully formatted document optimized for comprehension.</p>
+            <div className="absolute top-0 right-0 w-[60%] h-full bg-gradient-to-l from-brand-primary/5 to-transparent pointer-events-none z-0"></div>
+            
+            <div className="relative z-10 pointer-events-none">
+              <ScanText className="w-10 h-10 text-brand-primary mb-6" />
+              <h3 className="text-2xl font-display font-bold mb-3">Smart Summaries</h3>
+              <p className="text-text-secondary max-w-sm md:max-w-md">We don't just extract text. StudyGenius AI reconstructs your material into a readable, beautifully formatted document optimized for comprehension.</p>
+            </div>
             
             {/* Abstract visual mockup */}
-            <div className="absolute -bottom-10 -right-10 w-2/3 h-[250px] bg-background-elevated rounded-tl-xl border border-border-strong shadow-layer-4 p-6 transform group-hover:-translate-y-2 group-hover:-translate-x-2 transition-transform duration-500">
+            <div className="absolute -bottom-10 -right-10 w-3/4 md:w-1/2 h-[220px] bg-background-elevated rounded-tl-xl border border-border-strong shadow-layer-4 p-6 transform group-hover:-translate-y-2 group-hover:-translate-x-2 transition-transform duration-500 opacity-30 md:opacity-100 pointer-events-none">
               <div className="w-1/2 h-4 bg-border rounded-full mb-6"></div>
               <div className="space-y-3">
                 <div className="w-full h-2 bg-border-strong rounded-full"></div>
