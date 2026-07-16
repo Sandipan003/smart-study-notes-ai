@@ -269,7 +269,6 @@ This project demonstrates **structured output generation** via Llama 3 models:
   </tr>
 </table>
 
-> 🎓 This project was developed as a **BCT (Bachelor of Computer Technology) Final Year Project**.
 
 ---
 
